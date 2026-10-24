@@ -7,19 +7,19 @@
   --color-hover: #E8DEC8;
   --color-border-subtle: #E2D7C5;
   --color-border-default: #D8CEBC;
-  --color-border-strong: #0A192F;
-  --color-text-primary: #0A192F;
-  --color-text-secondary: #3B4D66;
-  --color-text-muted: #6E7F99;
+  --color-border-strong: #181716;
+  --color-text-primary: #181716;
+  --color-text-secondary: #45423E;
+  --color-text-muted: #76716B;
   
-  --color-navy-950: #050E1A;
-  --color-navy-900: #0A192F;
-  --color-navy-800: #102A4C;
-  --color-navy-700: #1B3B66;
-  --color-navy-600: #254F85;
-  --color-navy-500: #3165A6;
-  --color-navy-100: #E6EDF7;
-  --color-navy-50: #F0F4FA;
+  --color-charcoal-950: #0E0D0D;
+  --color-charcoal-900: #181716;
+  --color-charcoal-800: #22211F;
+  --color-charcoal-700: #2E2C2A;
+  --color-charcoal-600: #3D3A37;
+  --color-charcoal-500: #54504C;
+  --color-charcoal-100: #ECE8E1;
+  --color-charcoal-50: #F4F1EA;
 
   --color-cream-50: #FAF6EE;
   --color-cream-100: #F5EFE6;
@@ -28,15 +28,15 @@
   --color-cream-400: #DDD2BC;
   --color-cream-500: #C7BBA2;
 
-  --color-brand: #0A192F;
-  --color-brand-hover: #172A45;
-  --color-brand-deep: #050E1A;
-  --color-brand-tint: rgba(10, 25, 47, 0.08);
+  --color-brand: #181716;
+  --color-brand-hover: #262422;
+  --color-brand-deep: #0E0D0D;
+  --color-brand-tint: rgba(24, 23, 22, 0.08);
 
   --color-success: #059669;
   --color-error: #DC2626;
   --color-warning: #D97706;
-  --color-code-bg: #071527;
+  --color-code-bg: #141312;
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -49,19 +49,19 @@
   --bg-hover: #E8DEC8;
   --border-subtle: #E2D7C5;
   --border-default: #D8CEBC;
-  --border-strong: #0A192F;
-  --text-primary: #0A192F;
-  --text-secondary: #3B4D66;
-  --text-muted: #6E7F99;
+  --border-strong: #181716;
+  --text-primary: #181716;
+  --text-secondary: #45423E;
+  --text-muted: #76716B;
   
-  --navy-primary: #0A192F;
+  --charcoal-primary: #181716;
   --cream-primary: #FAF6EE;
 
-  --brand: #0A192F;
-  --brand-hover: #172A45;
-  --brand-deep: #050E1A;
-  --brand-tint: rgba(10, 25, 47, 0.08);
-  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(10, 25, 47, 0.04) 0%, rgba(245, 239, 230, 0) 70%);
+  --brand: #181716;
+  --brand-hover: #262422;
+  --brand-deep: #0E0D0D;
+  --brand-tint: rgba(24, 23, 22, 0.08);
+  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(24, 23, 22, 0.04) 0%, rgba(245, 239, 230, 0) 70%);
 
   --success: #059669;
   --success-fill: rgba(5, 150, 105, 0.12);
@@ -69,7 +69,7 @@
   --error-fill: rgba(220, 38, 38, 0.12);
   --warning: #D97706;
   --warning-fill: rgba(217, 119, 6, 0.12);
-  --code-bg: #071527;
+  --code-bg: #141312;
 
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
@@ -84,7 +84,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background-color: #F5EFE6;
-  color: #0A192F;
+  color: #181716;
   background-image: var(--brand-glow);
   background-repeat: no-repeat;
   background-size: 100% 700px;

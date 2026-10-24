@@ -67,7 +67,7 @@ export function ReportPanel({
                       onExport("markdown");
                       setExportOpen(false);
                     }}
-                    className="w-full text-left px-3 py-1.5 text-xs text-[#0A192F] hover:bg-[#F2ECE0] transition-colors font-medium"
+                    className="w-full text-left px-3 py-1.5 text-xs text-[#181716] hover:bg-[#F2ECE0] transition-colors font-medium"
                   >
                     Markdown (.md)
                   </button>
@@ -76,7 +76,7 @@ export function ReportPanel({
                       onExport("json");
                       setExportOpen(false);
                     }}
-                    className="w-full text-left px-3 py-1.5 text-xs text-[#0A192F] hover:bg-[#F2ECE0] transition-colors font-medium"
+                    className="w-full text-left px-3 py-1.5 text-xs text-[#181716] hover:bg-[#F2ECE0] transition-colors font-medium"
                   >
                     JSON report (.json)
                   </button>
@@ -85,7 +85,7 @@ export function ReportPanel({
                       onExport("pdf");
                       setExportOpen(false);
                     }}
-                    className="w-full text-left px-3 py-1.5 text-xs text-[#0A192F] hover:bg-[#F2ECE0] transition-colors font-medium"
+                    className="w-full text-left px-3 py-1.5 text-xs text-[#181716] hover:bg-[#F2ECE0] transition-colors font-medium"
                   >
                     PDF document (.pdf)
                   </button>
@@ -99,7 +99,7 @@ export function ReportPanel({
       {!hasReport ? (
         <EmptyState>
           <div className="py-4">
-            <p className="text-sm text-[#0A192F] font-semibold">No report generated yet</p>
+            <p className="text-sm text-[#181716] font-semibold">No report generated yet</p>
             <p className="text-xs text-[#6E7F99] mt-1 font-mono">
               Generate a report to see everything this run checked.
             </p>
@@ -111,11 +111,11 @@ export function ReportPanel({
           <div className="flex items-center justify-between flex-wrap gap-2 p-3 bg-[#F7F4EB] rounded-[6px] border border-[#DAD2C1] text-xs font-mono shadow-xs">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#059669] shadow-[0_0_8px_rgba(5,150,105,0.4)]" />
-              <span className="text-[#0A192F] font-medium">
+              <span className="text-[#181716] font-medium">
                 9 actions · 3 issues · 1 high severity · finished in 11.4s
               </span>
             </div>
-            <div className="text-[#0A192F] font-semibold bg-[#FAF6EE] px-2.5 py-0.5 rounded border border-[#DAD2C1]">
+            <div className="text-[#181716] font-semibold bg-[#FAF6EE] px-2.5 py-0.5 rounded border border-[#DAD2C1]">
               Scope: {scope.toUpperCase()}
               {scope === "region" && region ? ` (${region.width}×${region.height}px)` : ""}
               {scope === "element" && element ? ` (${element.selector})` : ""}
@@ -125,7 +125,7 @@ export function ReportPanel({
           {/* Whole site: Pages tested table */}
           {scope === "site" && (
             <div>
-              <h3 className="text-sm font-semibold text-[#0A192F] mb-3">Pages tested</h3>
+              <h3 className="text-sm font-semibold text-[#181716] mb-3">Pages tested</h3>
               <div className="rounded-[8px] border border-[#DAD2C1] overflow-hidden shadow-xs bg-[#FAF6EE]">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -139,8 +139,8 @@ export function ReportPanel({
                   <tbody className="divide-y divide-[#E8E1D3]">
                     {pagesTested.map((pt, i) => (
                       <tr key={i} className="hover:bg-[#F7F4EB] transition-colors">
-                        <td className="py-2.5 px-4 font-mono font-medium text-[#0A192F]">{pt.page}</td>
-                        <td className="py-2.5 px-4 font-mono font-medium text-[#0A192F]">{pt.issues}</td>
+                        <td className="py-2.5 px-4 font-mono font-medium text-[#181716]">{pt.page}</td>
+                        <td className="py-2.5 px-4 font-mono font-medium text-[#181716]">{pt.issues}</td>
                         <td className="py-2.5 px-4">
                           <Badge kind={pt.severity === "passed" ? "passed" : (pt.severity as any)} />
                         </td>
@@ -155,7 +155,7 @@ export function ReportPanel({
 
           {/* Checklist table: What was tested */}
           <div>
-            <h3 className="text-sm font-semibold text-[#0A192F] mb-3">What was tested</h3>
+            <h3 className="text-sm font-semibold text-[#181716] mb-3">What was tested</h3>
             <div className="rounded-[8px] border border-[#DAD2C1] overflow-hidden shadow-xs bg-[#FAF6EE]">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
@@ -168,7 +168,7 @@ export function ReportPanel({
                 <tbody className="divide-y divide-[#E8E1D3]">
                   {testRows.map((row, i) => (
                     <tr key={i} className="hover:bg-[#F7F4EB] transition-colors">
-                      <td className="py-3 px-4 font-semibold text-[#0A192F]">{row.check}</td>
+                      <td className="py-3 px-4 font-semibold text-[#181716]">{row.check}</td>
                       <td className="py-3 px-4">
                         <Badge kind={row.result} />
                       </td>
@@ -183,7 +183,7 @@ export function ReportPanel({
           {/* Root cause and next steps */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             <div className="p-4 rounded-[8px] bg-[#F7F4EB] border border-[#DAD2C1] shadow-xs">
-              <h4 className="text-xs font-bold text-[#0A192F] uppercase tracking-wider mb-2">
+              <h4 className="text-xs font-bold text-[#181716] uppercase tracking-wider mb-2">
                 Root cause
               </h4>
               <p className="text-sm text-[#3B4D66] leading-relaxed">
@@ -193,14 +193,14 @@ export function ReportPanel({
 
             <div className="p-4 rounded-[8px] bg-[#F7F4EB] border border-[#DAD2C1] flex flex-col justify-between shadow-xs">
               <div>
-                <h4 className="text-xs font-bold text-[#0A192F] uppercase tracking-wider mb-2">
+                <h4 className="text-xs font-bold text-[#181716] uppercase tracking-wider mb-2">
                   Next step
                 </h4>
                 <p className="text-sm text-[#3B4D66] leading-relaxed">
                   Apply the flex-wrap responsive rule or replace the link row with a collapsible navigation drawer for mobile viewports under 640px.
                 </p>
               </div>
-              <p className="text-xs text-[#0A192F] mt-3 font-semibold flex items-center gap-1.5">
+              <p className="text-xs text-[#181716] mt-3 font-semibold flex items-center gap-1.5">
                 <span className="text-[#059669]">→</span>
                 <span>See the Suggested fix tab in Developed code workspace above.</span>
               </p>

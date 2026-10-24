@@ -262,8 +262,8 @@ Instructions:
               onClick={() => setActiveTab(t.id)}
               className={`text-sm pb-1 transition-all border-b-2 font-semibold ${
                 activeTab === t.id
-                  ? "border-[#0A192F] text-[#0A192F]"
-                  : "border-transparent text-[#6E7F99] hover:text-[#0A192F]"
+                  ? "border-[#181716] text-[#181716]"
+                  : "border-transparent text-[#76716B] hover:text-[#181716]"
               }`}
             >
               {t.label}
@@ -272,20 +272,20 @@ Instructions:
         </div>
       }
     >
-      <div className="rounded-[8px] border border-[#0A192F] bg-[#071527] overflow-hidden shadow-md">
-        <div className="h-10 px-4 bg-[#0A192F] border-b border-[#172A45] flex items-center justify-between text-xs">
-          <div className="flex items-center gap-3 font-mono text-[#D0DDF0]">
+      <div className="rounded-[8px] border border-[#181716] bg-[#141312] overflow-hidden shadow-md">
+        <div className="h-10 px-4 bg-[#1C1B1A] border-b border-[#2B2927] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-3 font-mono text-[#D8D2C8]">
             <span className="text-[#34D399]">●</span>
-            <span className="text-[#FAF7F0] font-semibold">{currentTab.filename}</span>
-            <span className="text-[#93C5FD]">({scope} scope)</span>
-            <span className="text-[#8E9FBA]">{lines.length} lines</span>
+            <span className="text-[#FAF6EE] font-semibold">{currentTab.filename}</span>
+            <span className="text-[#C2B280]">({scope} scope)</span>
+            <span className="text-[#8A847E]">{lines.length} lines</span>
           </div>
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-[5px] bg-[#FAF6EE] text-[#0A192F] hover:bg-[#F0E8DA] font-semibold text-xs transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-[5px] bg-[#FAF6EE] text-[#181716] hover:bg-[#F0E8DA] font-semibold text-xs transition-colors shadow-xs"
           >
-            <svg className="w-3.5 h-3.5 text-[#0A192F]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="w-3.5 h-3.5 text-[#181716]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
@@ -293,7 +293,7 @@ Instructions:
           </button>
         </div>
 
-        <div className="p-4 overflow-x-auto text-[13px] leading-[22px] font-mono bg-[#071527] max-h-[380px]">
+        <div className="p-4 overflow-x-auto text-[13px] leading-[22px] font-mono bg-[#141312] max-h-[380px]">
           {lines.map((line, i) => (
             <div
               key={i}
@@ -301,10 +301,10 @@ Instructions:
                 activeTab === "prompt" ? "whitespace-pre-wrap" : "whitespace-pre"
               }`}
             >
-              <span className="w-10 text-right pr-4 text-[#476085] select-none flex-shrink-0">
+              <span className="w-10 text-right pr-4 text-[#5E5953] select-none flex-shrink-0">
                 {i + 1}
               </span>
-              <span className="text-[#FAF7F0]">{renderHighlightedLine(line)}</span>
+              <span className="text-[#FAF6EE]">{renderHighlightedLine(line)}</span>
             </div>
           ))}
         </div>

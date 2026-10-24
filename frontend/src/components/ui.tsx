@@ -11,13 +11,13 @@ export function Btn({
 }) {
   const v = {
     primary:
-      "bg-[#0A192F] border border-[#0A192F] text-[#FAF6EE] font-semibold hover:bg-[#172A45] hover:border-[#172A45] shadow-[0_2px_8px_rgba(10,25,47,0.2)] focus-visible:outline-2 focus-visible:outline-[#0A192F] focus-visible:outline-offset-2 transition-all active:scale-[0.98]",
+      "bg-[#181716] border border-[#181716] text-[#FAF6EE] font-semibold hover:bg-[#282624] hover:border-[#282624] shadow-[0_2px_8px_rgba(24,23,22,0.18)] focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 transition-all active:scale-[0.98]",
     secondary:
-      "bg-[#FAF6EE] border border-[#D8CEBC] text-[#0A192F] font-medium hover:bg-[#F0E8DA] hover:border-[#C7BBA2] shadow-xs focus-visible:outline-2 focus-visible:outline-[#0A192F] focus-visible:outline-offset-2 transition-all",
+      "bg-[#FAF6EE] border border-[#D8CEBC] text-[#181716] font-medium hover:bg-[#F0E8DA] hover:border-[#C7BBA2] shadow-xs focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 transition-all",
     ghost:
-      "bg-transparent border border-transparent text-[#3B4D66] hover:text-[#0A192F] hover:bg-[#F0E8DA] focus-visible:outline-2 focus-visible:outline-[#0A192F] focus-visible:outline-offset-2 transition-colors",
+      "bg-transparent border border-transparent text-[#45423E] hover:text-[#181716] hover:bg-[#F0E8DA] focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 transition-colors",
     outline:
-      "bg-transparent border border-[#D8CEBC] text-[#0A192F] hover:bg-[#F0E8DA] hover:border-[#C7BBA2] focus-visible:outline-2 focus-visible:outline-[#0A192F] focus-visible:outline-offset-2 transition-all",
+      "bg-transparent border border-[#D8CEBC] text-[#181716] hover:bg-[#F0E8DA] hover:border-[#C7BBA2] focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 transition-all",
   }[variant];
 
   const s = size === "lg" ? "h-11 px-5 text-sm" : "h-9 px-3 text-xs";
@@ -41,10 +41,10 @@ export function Chip({
     <button
       type="button"
       aria-pressed={on}
-      className={`h-7 px-3 rounded-full text-xs font-medium transition-all duration-150 border focus-visible:outline-2 focus-visible:outline-[#0A192F] focus-visible:outline-offset-2 ${
+      className={`h-7 px-3 rounded-full text-xs font-medium transition-all duration-150 border focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 ${
         on
-          ? "bg-[#0A192F] border-[#0A192F] text-[#FAF6EE] shadow-sm"
-          : "bg-[#FAF6EE] border-[#D8CEBC] text-[#485B78] hover:bg-[#F0E8DA] hover:text-[#0A192F]"
+          ? "bg-[#181716] border-[#181716] text-[#FAF6EE] shadow-sm"
+          : "bg-[#FAF6EE] border-[#D8CEBC] text-[#54504C] hover:bg-[#F0E8DA] hover:text-[#181716]"
       } ${className}`}
       {...props}
     >
@@ -63,7 +63,7 @@ export function Badge({
   const map = {
     high: { bg: "bg-[rgba(220,38,38,0.12)] text-[#DC2626] border border-[rgba(220,38,38,0.25)]", text: "High", icon: "▲" },
     medium: { bg: "bg-[rgba(217,119,6,0.12)] text-[#D97706] border border-[rgba(217,119,6,0.25)]", text: "Medium", icon: "●" },
-    low: { bg: "bg-[#F0E8DA] text-[#3B4D66] border border-[#D8CEBC]", text: "Low", icon: "▼" },
+    low: { bg: "bg-[#F0E8DA] text-[#45423E] border border-[#D8CEBC]", text: "Low", icon: "▼" },
     passed: { bg: "bg-[rgba(5,150,105,0.12)] text-[#059669] border border-[rgba(5,150,105,0.25)]", text: "Passed", icon: "✓" },
     failed: { bg: "bg-[rgba(220,38,38,0.12)] text-[#DC2626] border border-[rgba(220,38,38,0.25)]", text: "Failed", icon: "✕" },
     warning: { bg: "bg-[rgba(217,119,6,0.12)] text-[#D97706] border border-[rgba(217,119,6,0.25)]", text: "Warning", icon: "!" },
@@ -96,10 +96,10 @@ export function Panel({
   return (
     <section
       id={id}
-      className={`bg-[#FAF6EE] border border-[#E2D7C5] hover:border-[#D8CEBC] transition-all rounded-[12px] shadow-[0_2px_12px_rgba(10,25,47,0.04)] h-full flex flex-col ${className}`}
+      className={`bg-[#FAF6EE] border border-[#E2D7C5] hover:border-[#D8CEBC] transition-all rounded-[12px] shadow-[0_2px_12px_rgba(24,23,22,0.04)] h-full flex flex-col ${className}`}
     >
       <header className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-[#E2D7C5] min-h-[52px] flex-shrink-0">
-        <h2 className="text-base font-semibold tracking-tight text-[#0A192F]">{title}</h2>
+        <h2 className="text-base font-semibold tracking-tight text-[#181716]">{title}</h2>
         <div className="flex items-center gap-2 flex-wrap">{actions}</div>
       </header>
       <div className="p-5 flex-1 flex flex-col">{children}</div>
@@ -109,7 +109,7 @@ export function Panel({
 
 export function EmptyState({ children }: { children: ReactNode }) {
   return (
-    <div className="border border-dashed border-[#D8CEBC] bg-[#F0E8DA]/60 rounded-[8px] p-6 text-center text-sm text-[#6E7F99]">
+    <div className="border border-dashed border-[#D8CEBC] bg-[#F0E8DA]/60 rounded-[8px] p-6 text-center text-sm text-[#76716B]">
       {children}
     </div>
   );

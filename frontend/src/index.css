@@ -1,27 +1,135 @@
 @import "tailwindcss";
 
+@theme {
+  --color-canvas: #121212;
+  --color-surface: #171717;
+  --color-elevated: #1C1C1C;
+  --color-hover: #232323;
+  --color-border-subtle: #2E2E2E;
+  --color-border-default: #363636;
+  --color-border-strong: #454545;
+  --color-text-primary: #EDEDED;
+  --color-text-secondary: #A0A0A0;
+  --color-text-muted: #707070;
+  --color-brand: #3ECF8E;
+  --color-brand-hover: #00C573;
+  --color-brand-deep: #006239;
+  --color-brand-tint: rgba(62, 207, 142, 0.10);
+  --color-success: #3ECF8E;
+  --color-error: #EF4444;
+  --color-warning: #F5A524;
+  --color-code-bg: #171717;
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Source Code Pro", ui-monospace, Menlo, Consolas, monospace;
+}
+
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  color-scheme: light dark;
+  --bg-canvas: #121212;
+  --bg-surface: #171717;
+  --bg-elevated: #1C1C1C;
+  --bg-hover: #232323;
+  --border-subtle: #2E2E2E;
+  --border-default: #363636;
+  --border-strong: #454545;
+  --text-primary: #EDEDED;
+  --text-secondary: #A0A0A0;
+  --text-muted: #707070;
+  --brand: #3ECF8E;
+  --brand-hover: #00C573;
+  --brand-deep: #006239;
+  --brand-tint: rgba(62, 207, 142, 0.10);
+  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(62, 207, 142, 0.16) 0%, rgba(62, 207, 142, 0) 60%);
+  --success: #3ECF8E;
+  --success-fill: rgba(62, 207, 142, 0.12);
+  --error: #EF4444;
+  --error-fill: rgba(239, 68, 68, 0.14);
+  --warning: #F5A524;
+  --warning-fill: rgba(245, 165, 36, 0.14);
+  --code-bg: #171717;
+
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #020617; /* slate-950 */
+  background-color: #121212;
+  color: #EDEDED;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@keyframes fadeIn {
+.font-mono, code, pre {
+  font-family: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+.brand-glow-bg {
+  background-image: radial-gradient(ellipse 90% 120px at 50% 0%, rgba(62, 207, 142, 0.16) 0%, rgba(62, 207, 142, 0) 70%);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+::-webkit-scrollbar-thumb {
+  background: #2E2E2E;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #363636;
+}
+
+@keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateY(3px);
+    transform: translateX(-8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.25s ease-out forwards;
+@keyframes pulseBar {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slideInLeft 150ms ease-out forwards;
+}
+
+.animate-pulse-bar {
+  animation: pulseBar 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-skeleton {
+  animation: skeletonPulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

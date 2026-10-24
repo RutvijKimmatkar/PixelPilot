@@ -299,48 +299,6 @@ export function App() {
         }}
       />
 
-      {/* Floating Section Nav at right edge */}
-      <nav
-        aria-label="Section shortcuts"
-        className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden 2xl:flex flex-col gap-1 bg-[#FFFFFF]/95 backdrop-blur-md border border-[#DAD2C1] p-1.5 rounded-[8px] shadow-lg"
-      >
-        <button
-          onClick={() => scrollToSection(targetAndPreviewRef)}
-          title="Scroll to Target & Preview"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#3B4D66] hover:text-[#0A192F] hover:bg-[#F2ECE0] rounded transition-colors text-left font-medium"
-        >
-          ↑ Target & Preview
-        </button>
-        <button
-          onClick={() => scrollToSection(sessionRef)}
-          title="Scroll to Playwright Live Session"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#3B4D66] hover:text-[#0A192F] hover:bg-[#F2ECE0] rounded transition-colors text-left font-medium"
-        >
-          ▶ Session
-        </button>
-        <button
-          onClick={() => scrollToSection(issuesRef)}
-          title="Scroll to Issues Found"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#3B4D66] hover:text-[#0A192F] hover:bg-[#F2ECE0] rounded transition-colors text-left font-medium"
-        >
-          ▲ Issues
-        </button>
-        <button
-          onClick={() => scrollToSection(codeRef)}
-          title="Scroll to Developed Code"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#3B4D66] hover:text-[#0A192F] hover:bg-[#F2ECE0] rounded transition-colors text-left font-medium"
-        >
-          {"{ }"} Code
-        </button>
-        <button
-          onClick={() => scrollToSection(reportRef)}
-          title="Scroll to Report"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#3B4D66] hover:text-[#0A192F] hover:bg-[#F2ECE0] rounded transition-colors text-left font-medium"
-        >
-          ↓ Report
-        </button>
-      </nav>
-
       {/* MAIN CONTAINER */}
       <main className="flex-1 max-w-[1360px] w-full mx-auto px-6 py-6 space-y-6">
         {/* COMBINED TARGET & LIVE PREVIEW PANEL */}

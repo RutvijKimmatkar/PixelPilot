@@ -128,17 +128,82 @@ export async function cancelAnalysis(jobId: string): Promise<void> {
   }
 }
 
+export interface BackendReportData {
+  url: string;
+  issueDescription: string;
+  diagnosis: string;
+  likelyReason: string;
+  evidence: string[];
+  suggestedFix: string;
+  antigravityPrompt: string;
+  screenshots: {
+    desktop?: string;
+    mobile?: string;
+  };
+  metrics?: {
+    desktop?: {
+      viewportWidth: number;
+      viewportHeight: number;
+      scrollWidth: number;
+      scrollHeight: number;
+      hasHorizontalOverflow: boolean;
+    };
+    mobile?: {
+      viewportWidth: number;
+      viewportHeight: number;
+      scrollWidth: number;
+      hasHorizontalOverflow: boolean;
+      overflowingElements?: Array<{
+        tag: string;
+        className?: string;
+        textSnippet?: string;
+        rect?: { left: number; top: number; width: number; height: number };
+      }>;
+      overlaps?: Array<{
+        elementA: string;
+        elementB: string;
+        overlapArea: number;
+      }>;
+    };
+    consoleErrors?: Array<{ viewport: string; text: string }>;
+  };
+}
+
+export async function runLiveAnalysis(params: {
+  url: string;
+  issueDescription: string;
+  mode: "public" | "localhost";
+}): Promise<BackendReportData> {
+  const res = await fetch(`${BASE_URL}/api/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Analysis failed (${res.status})`);
+  }
+
+  const json = await res.json();
+  if (!json.success || !json.data) {
+    throw new Error(json.message || "Failed to retrieve analysis report from backend");
+  }
+
+  return json.data as BackendReportData;
+}
+
 // Local dev servers detection (probe 3000, 3001, 4200, 5173, 5174, 8000, 8080)
 export async function detectLocalServers(): Promise<LocalServer[]> {
   try {
     const res = await fetch(`${BASE_URL}/api/local/detect`);
-    const data = await handleResponse<{ servers: LocalServer[] }>(res);
+    const data = await handleResponse<{ success: boolean; servers: LocalServer[] }>(res);
     return data.servers;
   } catch {
     // Return detected active Vite dev server
     return [
       { port: 5173, url: "http://localhost:5173", title: "Visual Debugging Assistant (Vite)" },
-      { port: 3000, url: "http://localhost:3000", title: "Express API Backend" },
+      { port: 5001, url: "http://localhost:5001", title: "Express API Backend (Port 5001)" },
     ];
   }
 }

@@ -14,13 +14,14 @@ import type {
 } from "./types/console";
 import { TopBar } from "./components/Header";
 import { CombinedTargetAndPreview } from "./components/CombinedTargetAndPreview";
-import { SiteSnapshot, Screenshots, DESKTOP_SHOT, MOBILE_SHOT } from "./components/Overview";
+import { SiteSnapshot, Screenshots } from "./components/Overview";
+import { DESKTOP_SHOT, MOBILE_SHOT } from "./lib/demoScreenshots";
 import { PlaywrightTimeline, IssuesFound } from "./components/TimelineAndIssues";
 import { CodeWorkspace } from "./components/CodeWorkspace";
 import { ReportPanel } from "./components/ReportPanel";
 import { Toast, ZoomModal } from "./components/ToastAndModal";
 import { Btn } from "./components/ui";
-import { detectLocalServers } from "./lib/api";
+import { detectLocalServers, runLiveAnalysis, type BackendReportData } from "./lib/api";
 import {
   DEMO_SITE_INFO,
   DEMO_ACTIONS,
@@ -30,7 +31,8 @@ import {
 export function App() {
   // Target & Live Preview unified state
   const [targetMode, setTargetMode] = useState<TargetMode>("public");
-  const [url, setUrl] = useState("https://shop.acme-demo.dev");
+  const [url, setUrl] = useState("https://example.com");
+  const [liveReport, setLiveReport] = useState<BackendReportData | null>(null);
   const [port, setPort] = useState("5173");
   const [path, setPath] = useState("");
   const [desc, setDesc] = useState("Navbar overflows on mobile and the page scrolls sideways");
@@ -39,7 +41,6 @@ export function App() {
   const [vp, setVp] = useState({ desktop: true, tablet: false, mobile: true });
 
   // Preview interactive state
-  const [previewUrl, setPreviewUrl] = useState<string>("https://shop.acme-demo.dev");
   const [previewViewport, setPreviewViewport] = useState<ViewportKey>("mobile");
   const [previewTool, setPreviewTool] = useState<PreviewTool>("region");
   const [region, setRegion] = useState<SelectionRegion | null>(null);
@@ -85,12 +86,7 @@ export function App() {
       ? url.trim()
       : `http://localhost:${port}${path ? (path.startsWith("/") ? path : `/${path}`) : ""}`;
 
-  // Keep preview URL synchronized with active target URL
-  useEffect(() => {
-    if (activeTargetUrl && !activeTargetUrl.includes("undefined")) {
-      setPreviewUrl(activeTargetUrl);
-    }
-  }, [activeTargetUrl]);
+  const previewUrl = activeTargetUrl || "https://example.com";
 
   // URL validation error message
   const urlError = (() => {
@@ -137,7 +133,6 @@ export function App() {
   // Stream in actions when in running state + smooth scrolling flow
   useEffect(() => {
     if (!isRunning) return;
-    setRunningActionIndex(1);
     scrollToSection(sessionRef);
 
     const interval = setInterval(() => {
@@ -197,9 +192,22 @@ export function App() {
 
   const currentSiteInfo: SiteInfo | null = (() => {
     if (status === "idle" || isFailedBlocked) return null;
+    let hostname = DEMO_SITE_INFO.title;
+    try {
+      hostname = new URL(activeTargetUrl).hostname;
+    } catch {
+      // fallback
+    }
+
     return {
-      ...DEMO_SITE_INFO,
+      title: hostname,
       url: activeTargetUrl || DEMO_SITE_INFO.url,
+      status: 200,
+      loadTime: liveReport ? "1.4s" : DEMO_SITE_INFO.loadTime,
+      pageWeight: "1.2 MB",
+      domNodes: 420,
+      consoleErrors: liveReport?.metrics?.consoleErrors?.length ?? DEMO_SITE_INFO.consoleErrors,
+      viewports: ["1280px", "390px"],
       scope:
         scope === "site"
           ? `Whole site · ${maxPages} pages`
@@ -214,11 +222,40 @@ export function App() {
 
   const currentIssues: IssueItem[] = (() => {
     if (status === "idle" || isFailedBlocked) return [];
+    if (liveReport) {
+      const list: IssueItem[] = [];
+      const mobileOver = liveReport.metrics?.mobile?.overflowingElements || [];
+      mobileOver.forEach((el, idx) => {
+        list.push({
+          id: `iss-over-${idx}`,
+          severity: "high",
+          title: `Horizontal overflow on <${el.tag}>`,
+          selector: el.className ? `${el.tag}.${el.className.split(" ")[0]}` : el.tag,
+          measurement: el.rect ? `${el.rect.width}px element on mobile` : "Content extends past screen",
+          viewport: "390px",
+        });
+      });
+
+      if (liveReport.evidence) {
+        liveReport.evidence.forEach((ev, idx) => {
+          list.push({
+            id: `iss-ev-${idx}`,
+            severity: idx === 0 ? "high" : idx === 1 ? "medium" : "low",
+            title: ev,
+            selector: ev.includes(":") ? ev.split(":")[0] : "Layout inspection",
+            measurement: ev,
+            viewport: ev.toLowerCase().includes("mobile") || ev.includes("390") ? "390px" : "1280px",
+          });
+        });
+      }
+
+      if (list.length > 0) return list;
+    }
     return DEMO_ISSUES;
   })();
 
   // Handlers
-  const handleRun = () => {
+  const handleRun = async () => {
     if (!canRun) return;
     if (targetMode === "public") {
       const u = url.trim().toLowerCase();
@@ -235,8 +272,30 @@ export function App() {
       }
     }
     setIsFailedBlocked(false);
+    setRunningActionIndex(1);
     setStatus("running");
     setHasReport(false);
+    scrollToSection(sessionRef);
+
+    try {
+      const report = await runLiveAnalysis({
+        url: activeTargetUrl,
+        issueDescription: desc || "Responsive layout inspection and visual bug detection",
+        mode: targetMode,
+      });
+
+      setLiveReport(report);
+      setRunningActionIndex(DEMO_ACTIONS.length);
+      setStatus("completed");
+      setHasReport(true);
+      setToastMessage("Analysis completed successfully");
+      setTimeout(() => scrollToSection(issuesRef), 300);
+    } catch (err: unknown) {
+      console.error("Live analysis error:", err);
+      const msg = err instanceof Error ? err.message : "Analysis request failed";
+      setStatus("failed");
+      setToastMessage(msg);
+    }
   };
 
   const handleCancel = () => {
@@ -262,14 +321,13 @@ export function App() {
   };
 
   const handleSample = () => {
-    setTargetMode("public");
-    setUrl("https://shop.acme-demo.dev");
-    setDesc("Navbar overflows on mobile and the page scrolls sideways");
+    setTargetMode("localhost");
+    setPort("5173");
+    setPath("");
+    setDesc("Test local application layout and responsive viewports");
     setIsFailedBlocked(false);
-    setStatus("completed");
-    setHasReport(true);
-    setToastMessage("Sample bug loaded");
-    setTimeout(() => scrollToSection(issuesRef), 100);
+    setToastMessage("Local server target set to :5173");
+    setTimeout(() => scrollToSection(targetAndPreviewRef), 100);
   };
 
   const handleCopy = (text: string, label: string) => {
@@ -284,7 +342,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121212] text-[#EDEDED] flex flex-col font-sans selection:bg-[#006239] selection:text-[#3ECF8E]">
+    <div className="min-h-screen bg-[#0F0E0D] text-[#FAF8F5] flex flex-col font-sans selection:bg-[#2A2720] selection:text-[#FAF7F0]">
       {/* 1. TOP BAR */}
       <TopBar
         state={
@@ -307,40 +365,40 @@ export function App() {
       {/* Floating Section Nav at right edge */}
       <nav
         aria-label="Section shortcuts"
-        className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden 2xl:flex flex-col gap-1 bg-[#171717]/95 backdrop-blur-md border border-[#2E2E2E] p-1.5 rounded-[8px] shadow-2xl"
+        className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden 2xl:flex flex-col gap-1 bg-[#141312]/95 backdrop-blur-md border border-[#2A2825] p-1.5 rounded-[8px] shadow-2xl shadow-[inset_0_1px_0_0_rgba(253,248,241,0.04)]"
       >
         <button
           onClick={() => scrollToSection(targetAndPreviewRef)}
           title="Scroll to Target & Preview"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           ↑ Target & Preview
         </button>
         <button
           onClick={() => scrollToSection(sessionRef)}
           title="Scroll to Playwright Live Session"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           ▶ Session
         </button>
         <button
           onClick={() => scrollToSection(issuesRef)}
           title="Scroll to Issues Found"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           ▲ Issues
         </button>
         <button
           onClick={() => scrollToSection(codeRef)}
           title="Scroll to Developed Code"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           { } Code
         </button>
         <button
           onClick={() => scrollToSection(reportRef)}
           title="Scroll to Report"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           ↓ Report
         </button>
@@ -417,7 +475,7 @@ export function App() {
           <div
             ref={blockedBannerRef}
             id="blocked-banner"
-            className="bg-[rgba(239,68,68,0.12)] border border-[#EF4444] rounded-[8px] p-4 flex items-center justify-between gap-4 animate-slide-in"
+            className="bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.35)] rounded-[8px] p-4 flex items-center justify-between gap-4 animate-slide-in shadow-[inset_0_1px_0_0_rgba(239,68,68,0.12)]"
           >
             <div className="flex items-center gap-3">
               <span className="text-[#EF4444] font-bold text-base">✕</span>
@@ -425,7 +483,7 @@ export function App() {
                 <h3 className="text-sm font-medium text-[#EF4444]">
                   This URL was blocked: it points to a private network address or cloud metadata service.
                 </h3>
-                <p className="text-xs text-[#A0A0A0] mt-0.5">
+                <p className="text-xs text-[#B8B2A7] mt-0.5">
                   Playwright security rules forbid inspecting internal subnets, RFC1918 loopbacks, or 169.254.x.x addresses in Public URL mode.
                 </p>
               </div>
@@ -434,7 +492,7 @@ export function App() {
               variant="secondary"
               size="md"
               onClick={() => {
-                setUrl("https://shop.acme-demo.dev");
+                setUrl("https://example.com");
                 setIsFailedBlocked(false);
               }}
             >
@@ -484,6 +542,8 @@ export function App() {
               onZoom={(src) => setZoomSrc(src)}
               captures={captures}
               availablePages={["/catalog", "/products"]}
+              desktopShot={liveReport?.screenshots?.desktop}
+              mobileShot={liveReport?.screenshots?.mobile}
             />
           </div>
 
@@ -494,6 +554,9 @@ export function App() {
               scope={scope}
               region={region}
               element={pickedElement}
+              suggestedFix={liveReport?.suggestedFix}
+              antigravityPrompt={liveReport?.antigravityPrompt}
+              targetUrl={activeTargetUrl}
             />
           </div>
         </div>

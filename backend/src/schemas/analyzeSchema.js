@@ -1,5 +1,20 @@
 import { z } from 'zod';
 
+export const analyzeRequestSchema = z.object({
+  url: z
+    .string({ required_error: 'Website URL is required' })
+    .trim()
+    .min(1, 'Website URL cannot be empty')
+    .url('Must be a valid URL starting with http:// or https://'),
+  issueDescription: z
+    .string()
+    .trim()
+    .min(3, 'Issue description must be at least 3 characters long')
+    .max(1000, 'Issue description cannot exceed 1000 characters')
+    .optional(),
+  description: z.string().trim().optional(),
+  mode: z.enum(['public', 'localhost']).optional().default('public'),
+});
 
 export const openUrlRequestSchema = z.object({
   url: z
@@ -21,4 +36,3 @@ export const diagnoseVisualRequestSchema = z.object({
     .max(3000, 'Query cannot exceed 3000 characters'),
   url: z.string().trim().url().optional().or(z.literal('')),
 });
-

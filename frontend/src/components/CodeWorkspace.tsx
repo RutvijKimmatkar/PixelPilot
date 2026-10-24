@@ -12,6 +12,9 @@ interface CodeWorkspaceProps {
   scope?: TestScope;
   region?: SelectionRegion | null;
   element?: PickedElement | null;
+  suggestedFix?: string;
+  antigravityPrompt?: string;
+  targetUrl?: string;
 }
 
 export function CodeWorkspace({
@@ -19,6 +22,9 @@ export function CodeWorkspace({
   scope = "page",
   region,
   element,
+  suggestedFix,
+  antigravityPrompt,
+  targetUrl,
 }: CodeWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<"script" | "fix" | "prompt">("fix");
 
@@ -32,6 +38,8 @@ export function CodeWorkspace({
 
   // Generate scope-aware code for the Playwright script
   const getScriptCode = () => {
+    const target = targetUrl || "http://localhost:5173";
+
     if (scope === "site") {
       return `import { test, expect, chromium } from '@playwright/test';
 
@@ -42,7 +50,7 @@ test('crawl and test whole site for layout defects', async () => {
   const page = await context.newPage();
 
   const visited = new Set<string>();
-  const queue = ['https://shop.acme-demo.dev'];
+  const queue = ['${target}'];
   const maxPages = 10;
 
   while (queue.length > 0 && visited.size < maxPages) {
@@ -79,7 +87,7 @@ test('inspect selected area region clip', async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto('https://shop.acme-demo.dev', { waitUntil: 'networkidle' });
+  await page.goto('${target}', { waitUntil: 'networkidle' });
 
   // Cropped area screenshot with explicit bounding box
   await page.screenshot({
@@ -112,7 +120,7 @@ test('inspect target element subtree', async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto('https://shop.acme-demo.dev', { waitUntil: 'networkidle' });
+  await page.goto('${target}', { waitUntil: 'networkidle' });
 
   // Target element locator screenshot
   const locator = page.locator('${element.selector}');
@@ -183,9 +191,9 @@ Instructions:
       case "script":
         return getScriptCode();
       case "fix":
-        return SUGGESTED_FIX_CODE;
+        return suggestedFix || SUGGESTED_FIX_CODE;
       case "prompt":
-        return getPromptCode();
+        return antigravityPrompt || getPromptCode();
     }
   };
 
@@ -263,10 +271,10 @@ Instructions:
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`text-sm pb-1 transition-colors border-b-2 font-medium ${
+              className={`text-sm pb-1 transition-all border-b-2 font-medium ${
                 activeTab === t.id
-                  ? "border-[#3ECF8E] text-[#EDEDED]"
-                  : "border-transparent text-[#A0A0A0] hover:text-[#EDEDED]"
+                  ? "border-[#FAF7F0] text-[#FAF8F5] drop-shadow-[0_1px_4px_rgba(250,247,240,0.2)]"
+                  : "border-transparent text-[#B8B2A7] hover:text-[#FAF8F5]"
               }`}
             >
               {t.label}
@@ -275,24 +283,24 @@ Instructions:
         </div>
       }
     >
-      <div className="rounded-[8px] border border-[#2E2E2E] bg-[#171717] overflow-hidden">
-        <div className="h-10 px-4 bg-[#1C1C1C] border-b border-[#2E2E2E] flex items-center justify-between text-xs">
-          <div className="flex items-center gap-3 font-mono text-[#A0A0A0]">
+      <div className="rounded-[8px] border border-[#2A2825] bg-[#141312] overflow-hidden shadow-[inset_0_1px_0_0_rgba(253,248,241,0.05)]">
+        <div className="h-10 px-4 bg-[#1C1B19] border-b border-[#2A2825] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-3 font-mono text-[#B8B2A7]">
             <span className="text-[#3ECF8E]">●</span>
-            <span className="text-[#EDEDED] font-medium">{currentTab.filename}</span>
-            <span className="text-[#707070]">({scope} scope)</span>
-            <span className="text-[#707070]">{lines.length} lines</span>
+            <span className="text-[#FAF8F5] font-medium">{currentTab.filename}</span>
+            <span className="text-[#8C8578]">({scope} scope)</span>
+            <span className="text-[#7E776C]">{lines.length} lines</span>
           </div>
-          <Btn variant="ghost" size="md" onClick={handleCopy}>
-            <svg className="w-3.5 h-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <Btn variant="secondary" size="md" onClick={handleCopy}>
+            <svg className="w-3.5 h-3.5 mr-1 text-[#E7DCB9]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            {activeTab === "prompt" ? "Copy prompt" : "Copy code"}
+            <span className="text-[#FAF8F5]">{activeTab === "prompt" ? "Copy prompt" : "Copy code"}</span>
           </Btn>
         </div>
 
-        <div className="p-4 overflow-x-auto text-[13px] leading-[22px] font-mono bg-[#171717] max-h-[380px]">
+        <div className="p-4 overflow-x-auto text-[13px] leading-[22px] font-mono bg-[#141312] max-h-[380px]">
           {lines.map((line, i) => (
             <div
               key={i}
@@ -300,10 +308,10 @@ Instructions:
                 activeTab === "prompt" ? "whitespace-pre-wrap" : "whitespace-pre"
               }`}
             >
-              <span className="w-10 text-right pr-4 text-[#707070] select-none flex-shrink-0">
+              <span className="w-10 text-right pr-4 text-[#5E584D] select-none flex-shrink-0">
                 {i + 1}
               </span>
-              <span className="text-[#EDEDED]">{renderHighlightedLine(line)}</span>
+              <span className="text-[#FAF8F5]">{renderHighlightedLine(line)}</span>
             </div>
           ))}
         </div>

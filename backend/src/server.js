@@ -1,10 +1,13 @@
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+
 import { app } from './app.js';
 import { config, validateEnv } from './config/env.js';
 
 // Validate startup environment variables
 validateEnv();
 
-const server = app.listen(config.port, () => {
+const server = app.listen(config.port, '0.0.0.0', () => {
   console.log(`[Visual Debugging Assistant] Server running on http://localhost:${config.port}`);
   console.log(`[Visual Debugging Assistant] Environment: ${config.nodeEnv}`);
 });

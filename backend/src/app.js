@@ -29,6 +29,12 @@ app.use(express.urlencoded({ extended: false, limit: '25mb' }));
 // Serve built-in Web UI
 app.use(express.static(publicPath));
 
+// Request logger
+app.use((req, res, next) => {
+  console.log(`[HTTP] ${req.method} ${req.url}`);
+  next();
+});
+
 // Mount API routes
 app.use('/api', apiRouter);
 

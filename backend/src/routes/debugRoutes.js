@@ -1,15 +1,24 @@
 import { Router } from 'express';
 import { DebugController } from '../controllers/debugController.js';
 import { validateRequestBody } from '../middleware/validateRequest.js';
-import { analyzeRequestSchema } from '../schemas/analyzeSchema.js';
+import {
+  openUrlRequestSchema,
+  diagnoseVisualRequestSchema,
+} from '../schemas/analyzeSchema.js';
 
 export const debugRouter = Router();
 
 // Health check endpoint
 debugRouter.get('/health', DebugController.healthCheck);
 
-// Standard JSON analysis endpoint
-debugRouter.post('/analyze', validateRequestBody(analyzeRequestSchema), DebugController.analyze);
+// Open target website via Playwright and return rendered screenshot
+debugRouter.post('/open-url', validateRequestBody(openUrlRequestSchema), DebugController.openUrl);
 
-// Live progress streaming endpoint (SSE)
-debugRouter.get('/analyze/stream', DebugController.analyzeStream);
+// Multimodal visual analysis for user-captured screenshot and query
+debugRouter.post(
+  '/diagnose-visual',
+  validateRequestBody(diagnoseVisualRequestSchema),
+  DebugController.diagnoseVisual
+);
+
+

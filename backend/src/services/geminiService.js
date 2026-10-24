@@ -21,118 +21,106 @@ export class GeminiService {
     return genAI.getGenerativeModel({ model: config.gemini.model });
   }
 
+
   /**
-   * Generates targeted inspection hints from the user's issue description.
-   * Helps Playwright focus its DOM/CSS inspection on the relevant elements.
+   * Performs multimodal visual debugging on user-provided screenshot and query.
+   * Sends both image and text to Gemma/Gemini model.
    *
-   * @param {string} issueDescription
-   * @returns {Promise<{ suggestedSelectors: string[], suspectedProperties: string[] }>}
+   * @param {object} params
+   * @param {string} params.screenshot - Base64 image data URI or raw base64 string
+   * @param {string} params.query - User description / query of what is broken
+   * @param {string} [params.url] - Optional website URL
+   * @returns {Promise<object>}
    */
-  static async generateInspectionHints(issueDescription) {
+  static async analyzeVisualIssue({ screenshot, query, url }) {
     if (!config.gemini.apiKey) {
-      // Graceful fallback to default keywords if API key is not yet provided
       return {
-        suggestedSelectors: ['card', 'pricing', 'grid', 'flex', 'container', 'nav', 'header', 'button'],
-        suspectedProperties: ['width', 'min-width', 'grid-template-columns', 'flex-wrap', 'overflow'],
+        diagnosis: `Visual inspection for query: "${query}". (Demo mode: set GEMINI_API_KEY in .env for live AI diagnosis)`,
+        visualObservations: [
+          'Screenshot successfully received and captured by client.',
+          'Identified user focus area based on query description.',
+        ],
+        rootCause: 'Likely viewport overflow, missing responsive CSS constraints, or unconstrained width/margin.',
+        suggestedFix: 'Review CSS container widths, apply max-width: 100%, and verify media queries at mobile and desktop breakpoints.',
+        codeSnippet: `/* Recommended CSS hardening */\n.container {\n  max-width: 100%;\n  overflow-x: hidden;\n  box-sizing: border-box;\n}`,
+        antigravityPrompt: `Inspect the visual layout for ${url || 'the website'}. Fix the following issue: "${query}". Check responsive rules and ensure no horizontal overflow occurs.`,
       };
     }
 
     try {
       const model = this.getModel();
-      const prompt = `You are a frontend CSS debugging planner.
-A developer reported this visual layout issue on their website:
-"${issueDescription}"
 
-Extract:
-1. Up to 8 likely HTML class/tag/id keywords to inspect (e.g. "card", "pricing", "grid", "hero", "nav", "menu", "modal").
-2. Up to 5 suspected CSS properties that might cause this (e.g. "min-width", "grid-template-columns", "flex-wrap", "overflow-x", "position").
+      // Extract base64 and mimeType
+      let mimeType = 'image/png';
+      let cleanBase64 = screenshot;
 
-Respond ONLY in valid JSON with this exact format:
-{
-  "suggestedSelectors": ["string"],
-  "suspectedProperties": ["string"]
-}`;
+      if (screenshot.startsWith('data:')) {
+        const matches = screenshot.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/s);
+        if (matches) {
+          mimeType = matches[1];
+          cleanBase64 = matches[2];
+        } else {
+          cleanBase64 = screenshot.replace(/^data:[^;]+;base64,/, '');
+        }
+      }
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-      return JSON.parse(cleaned);
-    } catch (err) {
-      console.warn('[GeminiService] Failed to generate targeted inspection hints, using defaults:', err.message);
-      return {
-        suggestedSelectors: ['card', 'pricing', 'grid', 'flex', 'container', 'nav', 'header', 'button'],
-        suspectedProperties: ['width', 'min-width', 'grid-template-columns', 'flex-wrap', 'overflow'],
-      };
-    }
-  }
+      const prompt = `You are an expert Frontend & Visual Layout Debugger (Visual Debugging Assistant).
+A user has loaded a website and captured the attached screenshot showing a visual layout or styling problem.
 
-  /**
-   * Synthesizes Playwright browser evidence and user description into a final debugging report.
-   *
-   * @param {object} params
-   * @param {string} params.url - Website URL
-   * @param {string} params.issueDescription - User's stated problem
-   * @param {object} params.playwrightEvidence - Collected metrics, overflows, styles, and console errors
-   * @returns {Promise<object>} Structured diagnosis and Antigravity prompt
-   */
-  static async synthesizeDiagnosis({ url, issueDescription, playwrightEvidence }) {
-    const model = this.getModel();
-
-    const prompt = `You are an expert Frontend & Visual Layout Debugger (Visual Debugging Assistant).
-Your job is to analyze real browser measurements from a website and explain the visual layout issue clearly.
-
-WEBSITE URL: ${url}
-USER REPORTED ISSUE:
-"${issueDescription}"
-
-PLAYWRIGHT BROWSER EVIDENCE COLLECTED:
-1. Desktop Viewport (1280px wide):
-   - Horizontal Overflow: ${playwrightEvidence.desktopMetrics?.hasHorizontalOverflow ? 'YES (overflow detected)' : 'NO (fits screen)'}
-   - Page scrollWidth: ${playwrightEvidence.desktopMetrics?.scrollWidth}px
-
-2. Mobile Viewport (390px wide - iPhone standard):
-   - Horizontal Overflow: ${playwrightEvidence.mobileMetrics?.hasHorizontalOverflow ? 'YES (unwanted horizontal scroll detected)' : 'NO'}
-   - Page scrollWidth: ${playwrightEvidence.mobileMetrics?.scrollWidth}px (Screen is ${playwrightEvidence.mobileMetrics?.viewportWidth}px wide)
-   - Detected Sibling Overlaps: ${JSON.stringify(playwrightEvidence.mobileMetrics?.overlaps || [])}
-   - Overflowing Elements:
-${JSON.stringify(playwrightEvidence.mobileMetrics?.overflowingElements || [], null, 2)}
-   - Suspicious Component Styles:
-${JSON.stringify(playwrightEvidence.mobileMetrics?.suspiciousElements || [], null, 2)}
-   - Browser Console Errors:
-${JSON.stringify(playwrightEvidence.consoleErrors || [], null, 2)}
+USER ISSUE & QUERY:
+"${query}"
+${url ? `TARGET URL: ${url}` : ''}
 
 TASK:
-Generate a clear, high-quality visual debugging report in JSON format.
-You must provide:
-1. "diagnosis": A concise 1-2 sentence explanation answering "What is wrong?" in plain, user-friendly language.
-2. "likelyReason": The root technical cause explained simply (e.g. why the CSS or layout behaves this way on mobile).
-3. "evidence": A list of 3-5 concrete technical facts and measurements discovered from the webpage (e.g. "The pricing grid width is 982px on a 390px screen", "repeat(3, minmax(280px, 1fr)) is active without a mobile media query", etc.).
-4. "suggestedFix": Actionable, specific CSS recommendations to fix the bug (e.g. responsive breakpoints, flex-wrap, 1fr column rules).
-5. "antigravityPrompt": A complete, ready-to-paste prompt for the Antigravity AI coding assistant. The prompt should detail:
-   - The user's original issue
-   - Target website URL
-   - Observed layout metrics and CSS evidence
-   - Exact files/CSS properties to inspect and fix
-   - Recommended responsive breakpoints and shrinkage rules
-   - Verification instructions (testing at 390px, 768px, and 1280px)
+1. Examine the visual elements in the attached screenshot carefully (focusing on alignment, spacing, sizing, overlaps, clipping, and responsive behavior).
+2. Answer the user's query and diagnose the visual defect visible in the image.
+3. Provide the root technical cause (e.g. CSS properties, layout models, flex/grid configuration).
+4. Provide concrete, actionable fixes with code.
+5. Create a complete, detailed prompt for the Antigravity AI coding assistant.
 
 Respond ONLY with valid JSON with this exact schema:
 {
-  "diagnosis": "string",
-  "likelyReason": "string",
-  "evidence": ["string"],
-  "suggestedFix": "string",
-  "antigravityPrompt": "string"
+  "diagnosis": "Concise 1-2 sentence description answering what is visually broken or happening",
+  "visualObservations": [
+    "Observation 1 (concrete visual detail seen in screenshot)",
+    "Observation 2"
+  ],
+  "rootCause": "The root technical CSS/HTML reason",
+  "suggestedFix": "Detailed recommendations on what CSS or HTML changes will fix the issue",
+  "codeSnippet": "CSS or HTML code snippet example showing how to resolve it",
+  "antigravityPrompt": "Complete ready-to-run prompt for Antigravity AI assistant to implement the fix"
 }`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const imagePart = {
+        inlineData: {
+          data: cleanBase64,
+          mimeType,
+        },
+      };
 
-    try {
-      return JSON.parse(cleaned);
-    } catch {
-      throw AppError.internal('Failed to parse AI diagnosis response as JSON. Please try again.', 'AI_PARSE_ERROR');
+      const result = await model.generateContent([prompt, imagePart]);
+      const text = result.response.text();
+      const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+      try {
+        return JSON.parse(cleaned);
+      } catch {
+        return {
+          diagnosis: text.slice(0, 300),
+          visualObservations: ['Visual anomaly analyzed by AI from screenshot.'],
+          rootCause: 'CSS layout or responsive styling mismatch.',
+          suggestedFix: text,
+          codeSnippet: '',
+          antigravityPrompt: `Fix the visual issue described: ${query}`,
+        };
+      }
+    } catch (err) {
+      console.error('[GeminiService] Error in analyzeVisualIssue:', err);
+      throw AppError.internal(
+        `AI visual analysis failed: ${err.message || 'Unknown error from Generative AI service'}`,
+        'AI_ANALYSIS_FAILED'
+      );
     }
   }
 }
+

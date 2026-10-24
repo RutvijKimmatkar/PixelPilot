@@ -23,3 +23,10 @@ temp/
 # OS files
 .DS_Store
 Thumbs.db
+
+# HTML & CSS files
+index.html
+public/index.html
+*.html
+*.css
+

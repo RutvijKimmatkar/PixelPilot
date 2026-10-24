@@ -13,7 +13,7 @@ export const config = {
   allowedOrigin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || '',
-    model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+    model: process.env.GEMINI_MODEL || 'gemma-4-31b-it',
   },
   playwright: {
     timeoutMs: parseInt(process.env.BROWSER_TIMEOUT_MS || '20000', 10),

@@ -55,7 +55,7 @@ export function ZoomModal({ src, onClose }: ZoomModalProps) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative max-w-5xl max-h-[90vh] bg-[#FFFFFF] border border-[#DAD2C1] rounded-[12px] p-2 overflow-hidden shadow-2xl"
+        className="relative max-w-5xl max-h-[90vh] bg-[#FAF6EE] border border-[#DAD2C1] rounded-[12px] p-2 overflow-hidden shadow-2xl"
       >
         <button
           onClick={onClose}

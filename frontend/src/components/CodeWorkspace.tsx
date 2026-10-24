@@ -283,7 +283,7 @@ Instructions:
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-[5px] bg-[#FAF7F0] text-[#0A192F] hover:bg-[#FFFFFF] font-semibold text-xs transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-[5px] bg-[#FAF6EE] text-[#0A192F] hover:bg-[#F0E8DA] font-semibold text-xs transition-colors shadow-xs"
           >
             <svg className="w-3.5 h-3.5 text-[#0A192F]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />

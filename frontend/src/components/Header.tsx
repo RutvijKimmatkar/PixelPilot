@@ -144,7 +144,7 @@ export function TargetPanel(props: TargetProps) {
 
   return (
     <div className="relative">
-      <section className="relative bg-[#FFFFFF] border border-[#E8E1D3] rounded-[12px] p-6 hover:border-[#DAD2C1] transition-colors shadow-[0_2px_12px_rgba(10,25,47,0.04)]">
+      <section className="relative bg-[#FAF6EE] border border-[#E8E1D3] rounded-[12px] p-6 hover:border-[#DAD2C1] transition-colors shadow-[0_2px_12px_rgba(10,25,47,0.04)]">
         <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
           <div>
             <h1 className="text-[32px] leading-[38px] font-semibold tracking-[-0.02em] text-[#0A192F]">
@@ -212,7 +212,7 @@ export function TargetPanel(props: TargetProps) {
           {props.scope === "site" && (
             <div className="flex items-center gap-2 text-xs text-[#3B4D66]">
               <span>Max pages:</span>
-              <div className="flex items-center border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FFFFFF]">
+              <div className="flex items-center border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FAF6EE]">
                 <button
                   type="button"
                   onClick={() => props.setMaxPages(Math.max(1, props.maxPages - 1))}
@@ -336,7 +336,7 @@ export function TargetPanel(props: TargetProps) {
                           props.setPort(String(srv.port));
                           props.setPath("");
                         }}
-                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#FFFFFF] border border-[#DAD2C1] text-[#0A192F] hover:border-[#0A192F]"
+                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#FAF6EE] border border-[#DAD2C1] text-[#0A192F] hover:border-[#0A192F]"
                       >
                         localhost:{srv.port} ({srv.title})
                       </button>

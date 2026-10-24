@@ -279,7 +279,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F4EB] text-[#0A192F] flex flex-col font-sans selection:bg-[#0A192F] selection:text-[#FAF7F0]">
+    <div className="min-h-screen bg-[#F5EFE6] text-[#0A192F] flex flex-col font-sans selection:bg-[#0A192F] selection:text-[#FAF6EE]">
       {/* 1. TOP BAR */}
       <TopBar
         state={

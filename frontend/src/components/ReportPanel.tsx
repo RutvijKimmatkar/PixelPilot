@@ -61,7 +61,7 @@ export function ReportPanel({
               </Btn>
 
               {exportOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-40 bg-[#FFFFFF] border border-[#DAD2C1] rounded-[6px] shadow-xl py-1 z-20">
+                <div className="absolute right-0 top-full mt-1.5 w-40 bg-[#FAF6EE] border border-[#DAD2C1] rounded-[6px] shadow-xl py-1 z-20">
                   <button
                     onClick={() => {
                       onExport("markdown");
@@ -115,7 +115,7 @@ export function ReportPanel({
                 9 actions · 3 issues · 1 high severity · finished in 11.4s
               </span>
             </div>
-            <div className="text-[#0A192F] font-semibold bg-[#FFFFFF] px-2.5 py-0.5 rounded border border-[#DAD2C1]">
+            <div className="text-[#0A192F] font-semibold bg-[#FAF6EE] px-2.5 py-0.5 rounded border border-[#DAD2C1]">
               Scope: {scope.toUpperCase()}
               {scope === "region" && region ? ` (${region.width}×${region.height}px)` : ""}
               {scope === "element" && element ? ` (${element.selector})` : ""}
@@ -126,7 +126,7 @@ export function ReportPanel({
           {scope === "site" && (
             <div>
               <h3 className="text-sm font-semibold text-[#0A192F] mb-3">Pages tested</h3>
-              <div className="rounded-[8px] border border-[#DAD2C1] overflow-hidden shadow-xs bg-[#FFFFFF]">
+              <div className="rounded-[8px] border border-[#DAD2C1] overflow-hidden shadow-xs bg-[#FAF6EE]">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-[#F2ECE0] border-b border-[#DAD2C1] text-[#3B4D66]">
@@ -156,7 +156,7 @@ export function ReportPanel({
           {/* Checklist table: What was tested */}
           <div>
             <h3 className="text-sm font-semibold text-[#0A192F] mb-3">What was tested</h3>
-            <div className="rounded-[8px] border border-[#DAD2C1] overflow-hidden shadow-xs bg-[#FFFFFF]">
+            <div className="rounded-[8px] border border-[#DAD2C1] overflow-hidden shadow-xs bg-[#FAF6EE]">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-[#F2ECE0] border-b border-[#DAD2C1] text-[#3B4D66]">

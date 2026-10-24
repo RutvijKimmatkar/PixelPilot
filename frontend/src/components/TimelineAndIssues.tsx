@@ -70,7 +70,7 @@ export function PlaywrightTimeline({
               const pageUrl = pActions[0]?.pageUrl || `/page-${pIdx}`;
 
               return (
-                <div key={pIdx} className="border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FFFFFF] shadow-xs">
+                <div key={pIdx} className="border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FAF6EE] shadow-xs">
                   <button
                     type="button"
                     onClick={() => togglePageCollapse(pIdx)}
@@ -85,7 +85,7 @@ export function PlaywrightTimeline({
                   </button>
 
                   {!isCollapsed && (
-                    <div className="p-2 space-y-1.5 bg-[#FFFFFF]">
+                    <div className="p-2 space-y-1.5 bg-[#FAF6EE]">
                       {pActions.map((act) => renderActionRow(act, expandedId, setExpandedId))}
                     </div>
                   )}
@@ -119,7 +119,7 @@ function renderActionRow(
           ? "bg-[#EBF2FA] border-[#0A192F] shadow-sm"
           : isFailed
           ? "bg-[rgba(220,38,38,0.06)] border-[#DC2626]"
-          : "bg-[#FFFFFF] border-[#E8E1D3] hover:border-[#DAD2C1]"
+          : "bg-[#FAF6EE] border-[#E8E1D3] hover:border-[#DAD2C1]"
       }`}
     >
       {isRunning && (
@@ -157,7 +157,7 @@ function renderActionRow(
 
       {isExpanded && act.output && (
         <div className="px-3 pb-3 pt-0 border-t border-[#E8E1D3] mt-1 bg-[#F7F4EB] rounded-b-[6px]">
-          <div className="mt-2 text-xs font-mono text-[#0A192F] whitespace-pre-wrap break-all bg-[#FFFFFF] p-2.5 rounded border border-[#DAD2C1]">
+          <div className="mt-2 text-xs font-mono text-[#0A192F] whitespace-pre-wrap break-all bg-[#FAF6EE] p-2.5 rounded border border-[#DAD2C1]">
             {act.output}
           </div>
         </div>
@@ -235,7 +235,7 @@ export function IssuesFound({
           {filtered.map((iss) => (
             <div
               key={iss.id}
-              className="bg-[#FFFFFF] border border-[#E8E1D3] hover:border-[#0A192F] transition-all rounded-[8px] p-3.5 shadow-xs"
+              className="bg-[#FAF6EE] border border-[#E8E1D3] hover:border-[#0A192F] transition-all rounded-[8px] p-3.5 shadow-xs"
             >
               <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
                 <Badge kind={iss.severity} />

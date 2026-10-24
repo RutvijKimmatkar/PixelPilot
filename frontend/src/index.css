@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #F7F4EB;
-  --color-surface: #FFFFFF;
-  --color-elevated: #F2ECE0;
-  --color-hover: #E8E0D0;
-  --color-border-subtle: #E8E1D3;
-  --color-border-default: #DAD2C1;
+  --color-canvas: #F5EFE6;
+  --color-surface: #FAF6EE;
+  --color-elevated: #F0E8DA;
+  --color-hover: #E8DEC8;
+  --color-border-subtle: #E2D7C5;
+  --color-border-default: #D8CEBC;
   --color-border-strong: #0A192F;
   --color-text-primary: #0A192F;
   --color-text-secondary: #3B4D66;
@@ -21,12 +21,12 @@
   --color-navy-100: #E6EDF7;
   --color-navy-50: #F0F4FA;
 
-  --color-cream-50: #FDFCFA;
-  --color-cream-100: #FAF7F0;
-  --color-cream-200: #F7F4EB;
-  --color-cream-300: #EFE9DB;
-  --color-cream-400: #E2D9C5;
-  --color-cream-500: #C9BEA5;
+  --color-cream-50: #FAF6EE;
+  --color-cream-100: #F5EFE6;
+  --color-cream-200: #F0E8DA;
+  --color-cream-300: #E8DEC8;
+  --color-cream-400: #DDD2BC;
+  --color-cream-500: #C7BBA2;
 
   --color-brand: #0A192F;
   --color-brand-hover: #172A45;
@@ -43,25 +43,25 @@
 }
 
 :root {
-  --bg-canvas: #F7F4EB;
-  --bg-surface: #FFFFFF;
-  --bg-elevated: #F2ECE0;
-  --bg-hover: #E8E0D0;
-  --border-subtle: #E8E1D3;
-  --border-default: #DAD2C1;
+  --bg-canvas: #F5EFE6;
+  --bg-surface: #FAF6EE;
+  --bg-elevated: #F0E8DA;
+  --bg-hover: #E8DEC8;
+  --border-subtle: #E2D7C5;
+  --border-default: #D8CEBC;
   --border-strong: #0A192F;
   --text-primary: #0A192F;
   --text-secondary: #3B4D66;
   --text-muted: #6E7F99;
   
   --navy-primary: #0A192F;
-  --cream-primary: #F7F4EB;
+  --cream-primary: #FAF6EE;
 
   --brand: #0A192F;
   --brand-hover: #172A45;
   --brand-deep: #050E1A;
   --brand-tint: rgba(10, 25, 47, 0.08);
-  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(10, 25, 47, 0.05) 0%, rgba(247, 244, 235, 0) 70%);
+  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(10, 25, 47, 0.04) 0%, rgba(245, 239, 230, 0) 70%);
 
   --success: #059669;
   --success-fill: rgba(5, 150, 105, 0.12);
@@ -83,7 +83,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #F7F4EB;
+  background-color: #F5EFE6;
   color: #0A192F;
   background-image: var(--brand-glow);
   background-repeat: no-repeat;
@@ -102,14 +102,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F7F4EB;
+  background: #F5EFE6;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D8D0BF;
+  background: #D4C9B4;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #BFB5A0;
+  background: #BDB09A;
 }
 
 @keyframes slideInLeft {

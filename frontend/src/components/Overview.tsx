@@ -144,7 +144,7 @@ export function Screenshots({
         </div>
       ) : tab === "mobile" ? (
         <div className="space-y-3">
-          <div className="mx-auto w-52 rounded-[32px] border-[8px] border-[#0A192F] bg-[#FFFFFF] p-1.5 shadow-2xl relative">
+          <div className="mx-auto w-52 rounded-[32px] border-[8px] border-[#0A192F] bg-[#FAF6EE] p-1.5 shadow-2xl relative">
             <div className="mx-auto w-14 h-2 rounded-full bg-[#172A45] mb-1.5" />
             <button
               type="button"
@@ -176,7 +176,7 @@ export function Screenshots({
                   onClick={() => onZoom(cap.imageUrl || DESKTOP_SHOT)}
                   className="p-2 rounded bg-[#F7F4EB] border border-[#DAD2C1] hover:border-[#0A192F] cursor-zoom-in transition-colors text-xs font-mono shadow-xs"
                 >
-                  <div className="h-20 bg-[#FFFFFF] rounded border border-[#E8E1D3] flex items-center justify-center text-[#0A192F] font-bold">
+                  <div className="h-20 bg-[#FAF6EE] rounded border border-[#E8E1D3] flex items-center justify-center text-[#0A192F] font-bold">
                     {cap.width}×{cap.height}
                   </div>
                   <p className="mt-1 truncate text-[#0A192F] font-sans font-medium">{cap.label}</p>

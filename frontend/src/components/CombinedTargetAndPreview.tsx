@@ -171,7 +171,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
 
   return (
     <div className="relative">
-      <section className="relative bg-[#FFFFFF] border border-[#E8E1D3] rounded-[12px] p-6 hover:border-[#DAD2C1] transition-all space-y-6 shadow-[0_2px_12px_rgba(10,25,47,0.04)]">
+      <section className="relative bg-[#FAF6EE] border border-[#E8E1D3] rounded-[12px] p-6 hover:border-[#DAD2C1] transition-all space-y-6 shadow-[0_2px_12px_rgba(10,25,47,0.04)]">
         {/* HEADER & TARGET MODE */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -288,7 +288,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                           props.setPort(String(srv.port));
                           props.setPath("");
                         }}
-                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#FFFFFF] border border-[#DAD2C1] text-[#0A192F] hover:border-[#0A192F]"
+                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#FAF6EE] border border-[#DAD2C1] text-[#0A192F] hover:border-[#0A192F]"
                       >
                         localhost:{srv.port} ({srv.title})
                       </button>
@@ -396,7 +396,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
             {props.scope === "site" && (
               <div className="flex items-center gap-1.5 text-xs text-[#3B4D66] ml-2">
                 <span>Max pages:</span>
-                <div className="flex items-center border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FFFFFF]">
+                <div className="flex items-center border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FAF6EE]">
                   <button
                     type="button"
                     onClick={() => props.setMaxPages(Math.max(1, props.maxPages - 1))}
@@ -536,10 +536,10 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 <div
                   className={`relative transition-all duration-300 ${
                     props.viewport === "mobile"
-                      ? "w-[280px] rounded-[32px] border-[8px] border-[#0A192F] p-1 shadow-2xl bg-[#FFFFFF]"
+                      ? "w-[280px] rounded-[32px] border-[8px] border-[#0A192F] p-1 shadow-2xl bg-[#FAF6EE]"
                       : props.viewport === "tablet"
-                      ? "w-[500px] rounded-[16px] border-[6px] border-[#0A192F] p-1 shadow-xl bg-[#FFFFFF]"
-                      : "w-full max-w-[820px] rounded-[8px] border border-[#DAD2C1] bg-[#FFFFFF] shadow-sm"
+                      ? "w-[500px] rounded-[16px] border-[6px] border-[#0A192F] p-1 shadow-xl bg-[#FAF6EE]"
+                      : "w-full max-w-[820px] rounded-[8px] border border-[#DAD2C1] bg-[#FAF6EE] shadow-sm"
                   }`}
                 >
                   {props.viewport === "mobile" && (
@@ -573,7 +573,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                           <span>Categories</span>
                         </div>
                       </header>
-                      <div className="my-auto p-4 rounded bg-[#FFFFFF] border border-[#DAD2C1] space-y-2 shadow-xs">
+                      <div className="my-auto p-4 rounded bg-[#FAF6EE] border border-[#DAD2C1] space-y-2 shadow-xs">
                         <h3 className="font-semibold text-base text-[#0A192F]">
                           Live Headless Preview
                         </h3>
@@ -664,7 +664,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
             </div>
 
             {/* Selection Inspector Sidebar */}
-            <div className="w-full lg:w-[320px] bg-[#FFFFFF] border border-[#DAD2C1] rounded-[8px] p-4 flex flex-col justify-between space-y-4 shadow-sm">
+            <div className="w-full lg:w-[320px] bg-[#FAF6EE] border border-[#DAD2C1] rounded-[8px] p-4 flex flex-col justify-between space-y-4 shadow-sm">
               <div>
                 <div className="flex items-center justify-between pb-2 border-b border-[#E8E1D3]">
                   <h3 className="text-xs font-bold text-[#0A192F] uppercase tracking-wider">
@@ -821,7 +821,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 {props.captures.map((cap) => (
                   <div
                     key={cap.id}
-                    className="flex-shrink-0 w-44 bg-[#FFFFFF] border border-[#DAD2C1] rounded-[6px] p-2 hover:border-[#0A192F] transition-colors shadow-xs"
+                    className="flex-shrink-0 w-44 bg-[#FAF6EE] border border-[#DAD2C1] rounded-[6px] p-2 hover:border-[#0A192F] transition-colors shadow-xs"
                   >
                     <div
                       onClick={() => props.onZoom(cap.imageUrl || "")}

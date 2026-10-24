@@ -96,13 +96,13 @@ export function Panel({
   return (
     <section
       id={id}
-      className={`bg-[#171717] border border-[#2E2E2E] hover:border-[#363636] transition-colors rounded-[12px] ${className}`}
+      className={`bg-[#171717] border border-[#2E2E2E] hover:border-[#363636] transition-colors rounded-[12px] h-full flex flex-col ${className}`}
     >
-      <header className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-[#2E2E2E] min-h-[52px]">
+      <header className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-[#2E2E2E] min-h-[52px] flex-shrink-0">
         <h2 className="text-base font-medium tracking-tight text-[#EDEDED]">{title}</h2>
         <div className="flex items-center gap-2 flex-wrap">{actions}</div>
       </header>
-      <div className="p-5">{children}</div>
+      <div className="p-5 flex-1 flex flex-col">{children}</div>
     </section>
   );
 }

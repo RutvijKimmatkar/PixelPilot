@@ -55,7 +55,7 @@ export function SiteSnapshot({ info, loading }: { info: SiteInfo | null; loading
       ) : !info ? (
         <EmptyState>Run a test to inspect target website metadata.</EmptyState>
       ) : (
-        <>
+        <div className="flex-1 flex flex-col justify-between">
           <div className="flex items-center gap-3">
             <span
               className="w-8 h-8 rounded-[6px] bg-[#1C1C1C] border border-[#2E2E2E] grid place-items-center text-xs font-bold text-[#3ECF8E]"
@@ -68,7 +68,7 @@ export function SiteSnapshot({ info, loading }: { info: SiteInfo | null; loading
               <p className="text-xs font-mono text-[#707070] truncate">{info.url}</p>
             </div>
           </div>
-          <dl className="grid grid-cols-2 gap-3 mt-4">
+          <dl className="grid grid-cols-2 gap-3 mt-4 flex-1">
             {[
               ["Scope", info.scope ?? "This page", "text-[#3ECF8E]"],
               ["Pages tested", info.pagesTested ?? 1, "text-[#EDEDED]"],
@@ -81,7 +81,7 @@ export function SiteSnapshot({ info, loading }: { info: SiteInfo | null; loading
             ].map(([label, val, col]) => (
               <div
                 key={label as string}
-                className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-3 hover:border-[#363636] transition-colors"
+                className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-3 hover:border-[#363636] transition-colors flex flex-col justify-center"
               >
                 <dt className="text-xs text-[#A0A0A0]">{label}</dt>
                 <dd className={`text-[20px] leading-7 font-medium mt-1 font-mono truncate ${col}`}>
@@ -90,7 +90,7 @@ export function SiteSnapshot({ info, loading }: { info: SiteInfo | null; loading
               </div>
             ))}
           </dl>
-        </>
+        </div>
       )}
     </Panel>
   );

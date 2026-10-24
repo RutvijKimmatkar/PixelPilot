@@ -466,7 +466,6 @@ export function App() {
             <IssuesFound
               issues={currentIssues}
               loading={isRunning}
-              availablePages={["/", "/catalog", "/products"]}
               onShowInScreenshot={(issue) => {
                 setZoomSrc(issue.viewport === "375px" ? MOBILE_SHOT : DESKTOP_SHOT);
                 setToastMessage(`Viewing ${issue.title} in screenshot`);

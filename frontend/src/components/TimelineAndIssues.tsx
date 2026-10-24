@@ -209,21 +209,17 @@ interface IssuesProps {
   issues: IssueItem[];
   loading: boolean;
   onShowInScreenshot: (issue: IssueItem) => void;
-  availablePages?: string[];
 }
 
 export function IssuesFound({
   issues,
   loading,
   onShowInScreenshot,
-  availablePages = [],
 }: IssuesProps) {
   const [filter, setFilter] = useState<"all" | "high" | "medium" | "low">("all");
-  const [selectedPage, setSelectedPage] = useState<string>("all");
 
   const filtered = issues.filter((iss) => {
     if (filter !== "all" && iss.severity !== filter) return false;
-    if (selectedPage !== "all" && iss.pageUrl && iss.pageUrl !== selectedPage) return false;
     return true;
   });
 
@@ -237,25 +233,9 @@ export function IssuesFound({
           </span>
         </div>
       }
-      actions={
-        availablePages.length > 1 ? (
-          <select
-            value={selectedPage}
-            onChange={(e) => setSelectedPage(e.target.value)}
-            className="h-7 bg-[#1C1C1C] border border-[#2E2E2E] rounded px-2 text-xs text-[#EDEDED] font-mono"
-          >
-            <option value="all">All pages</option>
-            {availablePages.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        ) : null
-      }
     >
       {/* Row 2: Filter chips on their own row with flex-wrap so 'Low' never overflows */}
-      <div className="flex flex-wrap items-center gap-1.5 pb-3 mb-3 border-b border-[#2E2E2E]">
+      <div className="flex flex-wrap items-center gap-1.5 pb-3 mb-3 border-b border-[#2E2E2E] flex-shrink-0">
         <span className="text-[11px] text-[#707070] mr-0.5 flex-shrink-0">Severity:</span>
         {(["all", "high", "medium", "low"] as const).map((lvl) => (
           <button
@@ -290,7 +270,7 @@ export function IssuesFound({
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 overflow-y-auto max-h-[380px] pr-1.5 flex-1">
           {filtered.map((iss) => (
             <div
               key={iss.id}

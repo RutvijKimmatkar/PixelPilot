@@ -36,16 +36,16 @@ export function PlaywrightTimeline({
     <Panel
       title="Playwright live session"
       actions={
-        <span className="text-xs font-mono text-[#FAF8F5] bg-[#141312] px-2.5 py-1 rounded-full border border-[#2A2825] shadow-[inset_0_1px_0_0_rgba(253,248,241,0.04)]">
+        <span className="text-xs font-mono font-medium text-[#181716] bg-[#F2ECE0] px-2.5 py-1 rounded-full border border-[#DAD2C1] shadow-xs">
           {activeCount} of {totalCount} actions
         </span>
       }
       className="flex flex-col"
     >
-      {/* Luminous warm cream & emerald progress bar */}
-      <div className="w-full h-1.5 bg-[#1C1B19] rounded-full overflow-hidden mb-4 border border-[#2A2825]">
+      {/* Charcoal gradient progress bar */}
+      <div className="w-full h-1.5 bg-[#E8E1D3] rounded-full overflow-hidden mb-4 border border-[#DAD2C1]">
         <div
-          className="h-full bg-gradient-to-r from-[#FAF7F0] to-[#3ECF8E] transition-all duration-300 shadow-[0_0_8px_rgba(250,247,240,0.3)]"
+          className="h-full bg-gradient-to-r from-[#181716] to-[#45423E] transition-all duration-300 shadow-sm"
           style={{ width: `${(activeCount / Math.max(totalCount, 1)) * 100}%` }}
         />
       </div>
@@ -64,29 +64,28 @@ export function PlaywrightTimeline({
           aria-live="polite"
         >
           {isWholeSite ? (
-            // Grouped by page headers for Whole Site Crawling mode
             Object.entries(pagesGrouped).map(([pageStr, pActions]) => {
               const pIdx = Number(pageStr);
               const isCollapsed = collapsedPages[pIdx] ?? false;
               const pageUrl = pActions[0]?.pageUrl || `/page-${pIdx}`;
 
               return (
-                <div key={pIdx} className="border border-[#2A2825] rounded-[6px] overflow-hidden bg-[#141312] shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)]">
+                <div key={pIdx} className="border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FAF6EE] shadow-xs">
                   <button
                     type="button"
                     onClick={() => togglePageCollapse(pIdx)}
-                    className="w-full px-3 py-2 bg-[#1C1B19] border-b border-[#2A2825] flex items-center justify-between text-xs font-mono text-[#FAF8F5]"
+                    className="w-full px-3 py-2 bg-[#F2ECE0] border-b border-[#DAD2C1] flex items-center justify-between text-xs font-mono text-[#181716]"
                   >
                     <span className="flex items-center gap-2">
-                      <span className="text-[#3ECF8E]">📄</span>
-                      <span className="font-medium text-[#FAF8F5]">Page {pIdx} of 10</span>
-                      <span className="text-[#8C8578]">· {pageUrl}</span>
+                      <span className="text-[#059669]">📄</span>
+                      <span className="font-semibold text-[#181716]">Page {pIdx} of 10</span>
+                      <span className="text-[#6E7F99]">· {pageUrl}</span>
                     </span>
-                    <span className="text-[#8C8578]">{isCollapsed ? "▾" : "▴"}</span>
+                    <span className="text-[#6E7F99]">{isCollapsed ? "▾" : "▴"}</span>
                   </button>
 
                   {!isCollapsed && (
-                    <div className="p-2 space-y-1.5">
+                    <div className="p-2 space-y-1.5 bg-[#FAF6EE]">
                       {pActions.map((act) => renderActionRow(act, expandedId, setExpandedId))}
                     </div>
                   )}
@@ -94,7 +93,6 @@ export function PlaywrightTimeline({
               );
             })
           ) : (
-            // Single page standard list
             actions.map((act) => renderActionRow(act, expandedId, setExpandedId))
           )}
         </div>
@@ -118,14 +116,14 @@ function renderActionRow(
       key={act.id}
       className={`relative rounded-[6px] border transition-all text-sm ${
         isRunning
-          ? "bg-[rgba(250,247,240,0.06)] border-[#FAF7F0] shadow-[inset_0_1px_0_0_rgba(253,248,241,0.08)]"
+          ? "bg-[#F0E8DA] border-[#181716] shadow-sm"
           : isFailed
-          ? "bg-[rgba(239,68,68,0.1)] border-[#EF4444]"
-          : "bg-[#141312] border-[#2A2825] hover:border-[#3E3A34]"
+          ? "bg-[rgba(220,38,38,0.06)] border-[#DC2626]"
+          : "bg-[#FAF6EE] border-[#E8E1D3] hover:border-[#DAD2C1]"
       }`}
     >
       {isRunning && (
-        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#FAF7F0] animate-pulse-bar rounded-l shadow-[0_0_8px_rgba(250,247,240,0.5)]" />
+        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#181716] animate-pulse-bar rounded-l shadow-sm" />
       )}
 
       <button
@@ -135,31 +133,31 @@ function renderActionRow(
       >
         <div className="flex items-start gap-2.5 min-w-0">
           <span className="mt-0.5">
-            {isRunning && <Spinner className="w-3.5 h-3.5 text-[#FAF7F0]" />}
-            {isDone && <span className="text-xs text-[#3ECF8E] font-bold">✓</span>}
-            {isFailed && <span className="text-xs text-[#EF4444] font-bold">✕</span>}
+            {isRunning && <Spinner className="w-3.5 h-3.5 text-[#181716]" />}
+            {isDone && <span className="text-xs text-[#059669] font-bold">✓</span>}
+            {isFailed && <span className="text-xs text-[#DC2626] font-bold">✕</span>}
             {act.status === "pending" && (
-              <span className="inline-block w-3 h-3 rounded-full border border-[#7E776C]" />
+              <span className="inline-block w-3 h-3 rounded-full border border-[#8E9FBA]" />
             )}
           </span>
           <div className="min-w-0">
-            <p className="font-medium text-[#FAF8F5] text-sm leading-tight truncate">
+            <p className="font-semibold text-[#181716] text-sm leading-tight truncate">
               {act.name}
             </p>
-            <p className="font-mono text-xs text-[#8C8578] mt-0.5 truncate">
+            <p className="font-mono text-xs text-[#6E7F99] mt-0.5 truncate">
               {act.detail}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-          <span className="font-mono text-xs text-[#B8B2A7]">{act.duration}</span>
-          <span className="text-xs text-[#8C8578]">{isExpanded ? "▴" : "▾"}</span>
+          <span className="font-mono text-xs text-[#3B4D66] font-medium">{act.duration}</span>
+          <span className="text-xs text-[#6E7F99]">{isExpanded ? "▴" : "▾"}</span>
         </div>
       </button>
 
       {isExpanded && act.output && (
-        <div className="px-3 pb-3 pt-0 border-t border-[#2A2825] mt-1 bg-[#0F0E0D] rounded-b-[6px]">
-          <div className="mt-2 text-xs font-mono text-[#B8B2A7] whitespace-pre-wrap break-all bg-[#141312] p-2.5 rounded border border-[#2A2825]">
+        <div className="px-3 pb-3 pt-0 border-t border-[#E8E1D3] mt-1 bg-[#F7F4EB] rounded-b-[6px]">
+          <div className="mt-2 text-xs font-mono text-[#181716] whitespace-pre-wrap break-all bg-[#FAF6EE] p-2.5 rounded border border-[#DAD2C1]">
             {act.output}
           </div>
         </div>
@@ -191,24 +189,24 @@ export function IssuesFound({
       title={
         <div className="flex items-center gap-2">
           <span>Issues found</span>
-          <span className="h-5 px-2 rounded-full text-xs font-mono bg-[#141312] text-[#FAF8F5] border border-[#2A2825] flex items-center">
+          <span className="h-5 px-2 rounded-full text-xs font-mono font-semibold bg-[#F2ECE0] text-[#181716] border border-[#DAD2C1] flex items-center">
             {issues.length}
           </span>
         </div>
       }
     >
-      {/* Row 2: Filter chips on their own row with flex-wrap so 'Low' never overflows */}
-      <div className="flex flex-wrap items-center gap-1.5 pb-3 mb-3 border-b border-[#2A2825] flex-shrink-0">
-        <span className="text-[11px] text-[#8C8578] mr-0.5 flex-shrink-0">Severity:</span>
+      {/* Filter chips */}
+      <div className="flex flex-wrap items-center gap-1.5 pb-3 mb-3 border-b border-[#E8E1D3] flex-shrink-0">
+        <span className="text-[11px] text-[#6E7F99] mr-0.5 flex-shrink-0 font-medium">Severity:</span>
         {(["all", "high", "medium", "low"] as const).map((lvl) => (
           <button
             key={lvl}
             type="button"
             onClick={() => setFilter(lvl)}
-            className={`h-6 px-2.5 rounded-full text-xs transition-all capitalize flex-shrink-0 ${
+            className={`h-6 px-2.5 rounded-full text-xs transition-all capitalize flex-shrink-0 font-medium ${
               filter === lvl
-                ? "bg-[#FAF7F0] text-[#141414] font-semibold shadow-sm"
-                : "bg-[#141312] border border-[#2A2825] text-[#8C8578] hover:text-[#FAF8F5]"
+                ? "bg-[#181716] text-[#FAF7F0] font-semibold shadow-sm"
+                : "bg-[#F7F4EB] border border-[#DAD2C1] text-[#485B78] hover:text-[#181716]"
             }`}
           >
             {lvl}
@@ -223,12 +221,12 @@ export function IssuesFound({
           <Skeleton className="h-24 w-full" />
         </div>
       ) : issues.length === 0 ? (
-        <div className="border border-dashed border-[#2A2825] bg-[#141312]/50 rounded-[8px] p-6 text-center">
-          <div className="w-8 h-8 rounded-full bg-[rgba(62,207,142,0.12)] text-[#3ECF8E] mx-auto flex items-center justify-center text-sm font-bold mb-2">
+        <div className="border border-dashed border-[#DAD2C1] bg-[#F7F4EB]/60 rounded-[8px] p-6 text-center">
+          <div className="w-8 h-8 rounded-full bg-[rgba(5,150,105,0.12)] text-[#059669] mx-auto flex items-center justify-center text-sm font-bold mb-2">
             ✓
           </div>
-          <p className="text-sm font-medium text-[#FAF8F5]">No layout issues found</p>
-          <p className="text-xs text-[#8C8578] mt-1">
+          <p className="text-sm font-semibold text-[#181716]">No layout issues found</p>
+          <p className="text-xs text-[#6E7F99] mt-1">
             Try a different viewport or describe another symptom.
           </p>
         </div>
@@ -237,31 +235,31 @@ export function IssuesFound({
           {filtered.map((iss) => (
             <div
               key={iss.id}
-              className="bg-[#141312] border border-[#2A2825] hover:border-[#3E3A34] transition-all rounded-[8px] p-3.5 shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)]"
+              className="bg-[#FAF6EE] border border-[#E8E1D3] hover:border-[#181716] transition-all rounded-[8px] p-3.5 shadow-xs"
             >
               <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
                 <Badge kind={iss.severity} />
-                <span className="text-xs font-mono text-[#8C8578] truncate max-w-[150px]">
+                <span className="text-xs font-mono text-[#6E7F99] truncate max-w-[150px]">
                   {iss.pageUrl ? `${iss.pageUrl} · ` : ""}
                   {iss.viewport}
                 </span>
               </div>
-              <h4 className="text-sm font-medium text-[#FAF8F5] leading-snug">
+              <h4 className="text-sm font-semibold text-[#181716] leading-snug">
                 {iss.title}
               </h4>
               <div className="mt-2 flex items-center">
-                <code className="text-xs font-mono text-[#FAF7F0] bg-[#0F0E0D] px-2 py-1 rounded border border-[#2A2825] truncate max-w-full">
+                <code className="text-xs font-mono font-medium text-[#181716] bg-[#F7F4EB] px-2 py-1 rounded border border-[#DAD2C1] truncate max-w-full">
                   {iss.selector}
                 </code>
               </div>
-              <p className="text-xs text-[#B8B2A7] mt-2">
+              <p className="text-xs text-[#3B4D66] mt-2">
                 {iss.measurement}
               </p>
-              <div className="mt-3 pt-2.5 border-t border-[#2A2825] flex justify-end">
+              <div className="mt-3 pt-2.5 border-t border-[#E8E1D3] flex justify-end">
                 <button
                   type="button"
                   onClick={() => onShowInScreenshot(iss)}
-                  className="text-xs text-[#B8B2A7] hover:text-[#FAF7F0] transition-colors flex items-center gap-1 font-medium"
+                  className="text-xs text-[#181716] hover:underline transition-colors flex items-center gap-1 font-semibold"
                 >
                   <span>Show in screenshot</span>
                   <span>→</span>

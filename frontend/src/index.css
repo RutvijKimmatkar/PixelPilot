@@ -1,59 +1,78 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #0F0E0D;
-  --color-surface: #161514;
-  --color-elevated: #1C1B19;
-  --color-hover: #24221F;
-  --color-border-subtle: #2A2825;
-  --color-border-default: #36332E;
-  --color-border-strong: #4A463F;
-  --color-text-primary: #FAF8F5;
-  --color-text-secondary: #B8B2A7;
-  --color-text-muted: #7E776C;
-  --color-cream-50: #FAF8F5;
-  --color-cream-100: #FAF7F0;
-  --color-cream-200: #F5EFE0;
-  --color-cream-300: #E7DCB9;
-  --color-cream-muted: #8C8578;
-  --color-brand: #3ECF8E;
-  --color-brand-hover: #00C573;
-  --color-brand-deep: #006239;
-  --color-brand-tint: rgba(62, 207, 142, 0.10);
-  --color-success: #3ECF8E;
-  --color-error: #EF4444;
-  --color-warning: #F5A524;
+  --color-canvas: #F5EFE6;
+  --color-surface: #FAF6EE;
+  --color-elevated: #F0E8DA;
+  --color-hover: #E8DEC8;
+  --color-border-subtle: #E2D7C5;
+  --color-border-default: #D8CEBC;
+  --color-border-strong: #181716;
+  --color-text-primary: #181716;
+  --color-text-secondary: #45423E;
+  --color-text-muted: #76716B;
+  
+  --color-charcoal-950: #0E0D0D;
+  --color-charcoal-900: #181716;
+  --color-charcoal-800: #22211F;
+  --color-charcoal-700: #2E2C2A;
+  --color-charcoal-600: #3D3A37;
+  --color-charcoal-500: #54504C;
+  --color-charcoal-100: #ECE8E1;
+  --color-charcoal-50: #F4F1EA;
+
+  --color-cream-50: #FAF6EE;
+  --color-cream-100: #F5EFE6;
+  --color-cream-200: #F0E8DA;
+  --color-cream-300: #E8DEC8;
+  --color-cream-400: #DDD2BC;
+  --color-cream-500: #C7BBA2;
+
+  --color-brand: #181716;
+  --color-brand-hover: #262422;
+  --color-brand-deep: #0E0D0D;
+  --color-brand-tint: rgba(24, 23, 22, 0.08);
+
+  --color-success: #059669;
+  --color-error: #DC2626;
+  --color-warning: #D97706;
   --color-code-bg: #141312;
-  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "Source Code Pro", ui-monospace, Menlo, Consolas, monospace;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 :root {
-  --bg-canvas: #0F0E0D;
-  --bg-surface: #161514;
-  --bg-elevated: #1C1B19;
-  --bg-hover: #24221F;
-  --border-subtle: #2A2825;
-  --border-default: #36332E;
-  --border-strong: #4A463F;
-  --text-primary: #FAF8F5;
-  --text-secondary: #B8B2A7;
-  --text-muted: #7E776C;
-  --brand: #3ECF8E;
-  --brand-hover: #00C573;
-  --brand-deep: #006239;
-  --brand-tint: rgba(62, 207, 142, 0.10);
-  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(250, 247, 240, 0.08) 0%, rgba(62, 207, 142, 0.08) 35%, rgba(15, 14, 13, 0) 70%);
-  --success: #3ECF8E;
-  --success-fill: rgba(62, 207, 142, 0.12);
-  --error: #EF4444;
-  --error-fill: rgba(239, 68, 68, 0.14);
-  --warning: #F5A524;
-  --warning-fill: rgba(245, 165, 36, 0.14);
+  --bg-canvas: #F5EFE6;
+  --bg-surface: #FAF6EE;
+  --bg-elevated: #F0E8DA;
+  --bg-hover: #E8DEC8;
+  --border-subtle: #E2D7C5;
+  --border-default: #D8CEBC;
+  --border-strong: #181716;
+  --text-primary: #181716;
+  --text-secondary: #45423E;
+  --text-muted: #76716B;
+  
+  --charcoal-primary: #181716;
+  --cream-primary: #FAF6EE;
+
+  --brand: #181716;
+  --brand-hover: #262422;
+  --brand-deep: #0E0D0D;
+  --brand-tint: rgba(24, 23, 22, 0.08);
+  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(24, 23, 22, 0.04) 0%, rgba(245, 239, 230, 0) 70%);
+
+  --success: #059669;
+  --success-fill: rgba(5, 150, 105, 0.12);
+  --error: #DC2626;
+  --error-fill: rgba(220, 38, 38, 0.12);
+  --warning: #D97706;
+  --warning-fill: rgba(217, 119, 6, 0.12);
   --code-bg: #141312;
 
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -64,11 +83,11 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #0F0E0D;
-  color: #FAF8F5;
+  background-color: #F5EFE6;
+  color: #181716;
   background-image: var(--brand-glow);
   background-repeat: no-repeat;
-  background-size: 100% 900px;
+  background-size: 100% 700px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -77,24 +96,20 @@ body {
   font-family: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
 }
 
-.brand-glow-bg {
-  background-image: radial-gradient(ellipse 90% 160px at 50% 0%, rgba(250, 247, 240, 0.07) 0%, rgba(62, 207, 142, 0.12) 40%, rgba(15, 14, 13, 0) 70%);
-}
-
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0F0E0D;
+  background: #F5EFE6;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2C2A26;
+  background: #D4C9B4;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3E3A34;
+  background: #BDB09A;
 }
 
 @keyframes slideInLeft {
@@ -127,10 +142,10 @@ body {
 
 @keyframes skeletonPulse {
   0%, 100% {
-    opacity: 0.4;
+    opacity: 0.5;
   }
   50% {
-    opacity: 0.8;
+    opacity: 0.85;
   }
 }
 

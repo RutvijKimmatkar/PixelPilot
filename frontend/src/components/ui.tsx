@@ -11,13 +11,13 @@ export function Btn({
 }) {
   const v = {
     primary:
-      "bg-[#FAF7F0] border border-[#E7DCB9] text-[#141414] font-semibold hover:bg-white hover:border-white shadow-[0_2px_14px_rgba(250,247,240,0.2),inset_0_1px_0_0_rgba(255,255,255,0.8)] focus-visible:outline-2 focus-visible:outline-[#FAF7F0] focus-visible:outline-offset-2 transition-all active:scale-[0.98]",
+      "bg-[#181716] border border-[#181716] text-[#FAF6EE] font-semibold hover:bg-[#282624] hover:border-[#282624] shadow-[0_2px_8px_rgba(24,23,22,0.18)] focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 transition-all active:scale-[0.98]",
     secondary:
-      "bg-[#1C1B19] border border-[#36332E] text-[#FAF8F5] hover:bg-[#252320] hover:border-[#4A463F] shadow-[inset_0_1px_0_0_rgba(253,248,241,0.05)] focus-visible:outline-2 focus-visible:outline-[#FAF7F0] focus-visible:outline-offset-2 transition-all",
+      "bg-[#FAF6EE] border border-[#D8CEBC] text-[#181716] font-medium hover:bg-[#F0E8DA] hover:border-[#C7BBA2] shadow-xs focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 transition-all",
     ghost:
-      "bg-transparent border border-transparent text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1C1B19] focus-visible:outline-2 focus-visible:outline-[#FAF7F0] focus-visible:outline-offset-2 transition-colors",
+      "bg-transparent border border-transparent text-[#45423E] hover:text-[#181716] hover:bg-[#F0E8DA] focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 transition-colors",
     outline:
-      "bg-transparent border border-[#36332E] text-[#FAF8F5] hover:bg-[#1C1B19] hover:border-[#4A463F] focus-visible:outline-2 focus-visible:outline-[#FAF7F0] focus-visible:outline-offset-2 transition-all",
+      "bg-transparent border border-[#D8CEBC] text-[#181716] hover:bg-[#F0E8DA] hover:border-[#C7BBA2] focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 transition-all",
   }[variant];
 
   const s = size === "lg" ? "h-11 px-5 text-sm" : "h-9 px-3 text-xs";
@@ -41,10 +41,10 @@ export function Chip({
     <button
       type="button"
       aria-pressed={on}
-      className={`h-7 px-3 rounded-full text-xs font-medium transition-all duration-150 border focus-visible:outline-2 focus-visible:outline-[#FAF7F0] focus-visible:outline-offset-2 ${
+      className={`h-7 px-3 rounded-full text-xs font-medium transition-all duration-150 border focus-visible:outline-2 focus-visible:outline-[#181716] focus-visible:outline-offset-2 ${
         on
-          ? "bg-[rgba(250,247,240,0.10)] border-[#FAF7F0] text-[#FAF8F5] shadow-[0_0_10px_rgba(250,247,240,0.18)]"
-          : "bg-transparent border-[#36332E] text-[#B8B2A7] hover:bg-[#1C1B19] hover:text-[#FAF8F5]"
+          ? "bg-[#181716] border-[#181716] text-[#FAF6EE] shadow-sm"
+          : "bg-[#FAF6EE] border-[#D8CEBC] text-[#54504C] hover:bg-[#F0E8DA] hover:text-[#181716]"
       } ${className}`}
       {...props}
     >
@@ -61,13 +61,13 @@ export function Badge({
   label?: string;
 }) {
   const map = {
-    high: { bg: "bg-[rgba(239,68,68,0.14)] text-[#EF4444]", text: "High", icon: "▲" },
-    medium: { bg: "bg-[rgba(245,165,36,0.14)] text-[#F5A524]", text: "Medium", icon: "●" },
-    low: { bg: "bg-[#201E1B] text-[#B8B2A7]", text: "Low", icon: "▼" },
-    passed: { bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E]", text: "Passed", icon: "✓" },
-    failed: { bg: "bg-[rgba(239,68,68,0.14)] text-[#EF4444]", text: "Failed", icon: "✕" },
-    warning: { bg: "bg-[rgba(245,165,36,0.14)] text-[#F5A524]", text: "Warning", icon: "!" },
-    completed: { bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E]", text: "Completed", icon: "✓" },
+    high: { bg: "bg-[rgba(220,38,38,0.12)] text-[#DC2626] border border-[rgba(220,38,38,0.25)]", text: "High", icon: "▲" },
+    medium: { bg: "bg-[rgba(217,119,6,0.12)] text-[#D97706] border border-[rgba(217,119,6,0.25)]", text: "Medium", icon: "●" },
+    low: { bg: "bg-[#F0E8DA] text-[#45423E] border border-[#D8CEBC]", text: "Low", icon: "▼" },
+    passed: { bg: "bg-[rgba(5,150,105,0.12)] text-[#059669] border border-[rgba(5,150,105,0.25)]", text: "Passed", icon: "✓" },
+    failed: { bg: "bg-[rgba(220,38,38,0.12)] text-[#DC2626] border border-[rgba(220,38,38,0.25)]", text: "Failed", icon: "✕" },
+    warning: { bg: "bg-[rgba(217,119,6,0.12)] text-[#D97706] border border-[rgba(217,119,6,0.25)]", text: "Warning", icon: "!" },
+    completed: { bg: "bg-[rgba(5,150,105,0.12)] text-[#059669] border border-[rgba(5,150,105,0.25)]", text: "Completed", icon: "✓" },
   }[kind];
 
   return (
@@ -96,10 +96,10 @@ export function Panel({
   return (
     <section
       id={id}
-      className={`bg-[#161514] border border-[#2A2825] hover:border-[#36332E] transition-all rounded-[12px] shadow-[inset_0_1px_0_0_rgba(253,248,241,0.05),0_8px_24px_rgba(0,0,0,0.4)] h-full flex flex-col ${className}`}
+      className={`bg-[#FAF6EE] border border-[#E2D7C5] hover:border-[#D8CEBC] transition-all rounded-[12px] shadow-[0_2px_12px_rgba(24,23,22,0.04)] h-full flex flex-col ${className}`}
     >
-      <header className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-[#2A2825] min-h-[52px] flex-shrink-0">
-        <h2 className="text-base font-medium tracking-tight text-[#FAF8F5]">{title}</h2>
+      <header className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-[#E2D7C5] min-h-[52px] flex-shrink-0">
+        <h2 className="text-base font-semibold tracking-tight text-[#181716]">{title}</h2>
         <div className="flex items-center gap-2 flex-wrap">{actions}</div>
       </header>
       <div className="p-5 flex-1 flex flex-col">{children}</div>
@@ -109,14 +109,14 @@ export function Panel({
 
 export function EmptyState({ children }: { children: ReactNode }) {
   return (
-    <div className="border border-dashed border-[#2A2825] bg-[#141312]/60 rounded-[8px] p-6 text-center text-sm text-[#8C8578]">
+    <div className="border border-dashed border-[#D8CEBC] bg-[#F0E8DA]/60 rounded-[8px] p-6 text-center text-sm text-[#76716B]">
       {children}
     </div>
   );
 }
 
 export function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`bg-[#201E1B] rounded-[6px] animate-skeleton ${className}`} />;
+  return <div className={`bg-[#E5DBC7] rounded-[6px] animate-skeleton ${className}`} />;
 }
 
 export function Spinner({ className = "w-4 h-4" }: { className?: string }) {

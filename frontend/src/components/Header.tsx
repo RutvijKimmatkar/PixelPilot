@@ -15,57 +15,57 @@ export function TopBar({
 }) {
   const statusConfig = {
     idle: {
-      bg: "bg-[#1C1B19] text-[#B8B2A7] border border-[#2A2825]",
+      bg: "bg-[#282624] text-[#D8D2C8] border border-[#3A3835]",
       label: "Idle",
-      icon: <span className="w-2 h-2 rounded-full bg-[#7E776C]" />,
+      icon: <span className="w-2 h-2 rounded-full bg-[#8A847E]" />,
     },
     validation_error: {
-      bg: "bg-[rgba(239,68,68,0.14)] text-[#EF4444] border border-[rgba(239,68,68,0.3)]",
+      bg: "bg-[rgba(220,38,38,0.2)] text-[#FCA5A5] border border-[rgba(220,38,38,0.4)]",
       label: "Invalid target",
       icon: <span className="text-xs">✕</span>,
     },
     running: {
-      bg: "bg-[rgba(250,247,240,0.08)] text-[#FAF8F5] border border-[rgba(250,247,240,0.25)] shadow-[0_0_12px_rgba(250,247,240,0.12)]",
+      bg: "bg-[#2E2C2A] text-[#FAF6EE] border border-[#54504C] shadow-[0_0_12px_rgba(84,80,76,0.3)]",
       label: "Running",
-      icon: <Spinner className="w-3 h-3 text-[#FAF7F0]" />,
+      icon: <Spinner className="w-3 h-3 text-[#FAF6EE]" />,
     },
     whole_site_running: {
-      bg: "bg-[rgba(250,247,240,0.08)] text-[#FAF8F5] border border-[rgba(250,247,240,0.25)]",
+      bg: "bg-[#2E2C2A] text-[#FAF6EE] border border-[#54504C]",
       label: "Crawling site (Page 3/10)",
-      icon: <Spinner className="w-3 h-3 text-[#FAF7F0]" />,
+      icon: <Spinner className="w-3 h-3 text-[#FAF6EE]" />,
     },
     preview_area_selected: {
-      bg: "bg-[rgba(250,247,240,0.10)] text-[#FAF8F5] border border-[rgba(250,247,240,0.2)]",
+      bg: "bg-[#282624] text-[#FAF6EE] border border-[#54504C]",
       label: "Preview ready · Area selected",
-      icon: <span className="text-xs font-bold text-[#E7DCB9]">⌖</span>,
+      icon: <span className="text-xs font-bold text-[#E8DEC8]">⌖</span>,
     },
     completed_issues: {
-      bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E] border border-[rgba(62,207,142,0.25)]",
+      bg: "bg-[rgba(5,150,105,0.2)] text-[#6EE7B7] border border-[rgba(5,150,105,0.4)]",
       label: "Completed",
       icon: <span className="text-xs font-bold">✓</span>,
     },
     completed_clean: {
-      bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E] border border-[rgba(62,207,142,0.25)]",
+      bg: "bg-[rgba(5,150,105,0.2)] text-[#6EE7B7] border border-[rgba(5,150,105,0.4)]",
       label: "Completed",
       icon: <span className="text-xs font-bold">✓</span>,
     },
     failed_blocked: {
-      bg: "bg-[rgba(239,68,68,0.14)] text-[#EF4444] border border-[rgba(239,68,68,0.3)]",
+      bg: "bg-[rgba(220,38,38,0.2)] text-[#FCA5A5] border border-[rgba(220,38,38,0.4)]",
       label: "Failed",
       icon: <span className="text-xs font-bold">✕</span>,
     },
   }[state];
 
   return (
-    <header className="h-14 bg-[rgba(15,14,13,0.85)] backdrop-blur-[12px] border-b border-[#2A2825] sticky top-0 z-30 shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)]">
+    <header className="h-14 bg-[#181716] text-[#FAF6EE] border-b border-[#282624] sticky top-0 z-30 shadow-[0_2px_10px_rgba(24,23,22,0.15)]">
       <div className="max-w-[1360px] mx-auto px-6 h-full flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-[7px] bg-[#FAF7F0] flex items-center justify-center text-[#141414] shadow-[0_2px_10px_rgba(250,247,240,0.25)] border border-[#E7DCB9]">
+          <div className="w-7 h-7 rounded-[7px] bg-[#FAF6EE] flex items-center justify-center text-[#181716] shadow-sm border border-[#DDD2BC]">
             <svg
               className="w-4 h-4"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#141414"
+              stroke="#181716"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -74,10 +74,10 @@ export function TopBar({
               <path d="M12 6V3M4 13h4M16 13h4M5 7l3 2M19 7l-3 2M5 19l3-2M19 19l-3-2" />
             </svg>
           </div>
-          <span className="font-medium text-sm text-[#FAF8F5] tracking-tight">
+          <span className="font-semibold text-sm text-[#FAF6EE] tracking-tight">
             Visual debugging assistant
           </span>
-          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[rgba(250,247,240,0.06)] border border-[rgba(250,247,240,0.12)] text-[#E7DCB9]">
+          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#282624] border border-[#3A3835] text-[#D8D2C8]">
             v1.0
           </span>
         </div>
@@ -90,9 +90,14 @@ export function TopBar({
             {statusConfig.icon}
             <span>{statusConfig.label}</span>
           </div>
-          <Btn id="run-history-btn" variant="ghost" onClick={onHistoryClick}>
+          <button
+            type="button"
+            id="run-history-btn"
+            onClick={onHistoryClick}
+            className="h-9 px-3 text-xs font-medium text-[#D8D2C8] hover:text-[#FAF6EE] hover:bg-[#282624] rounded-[6px] transition-colors"
+          >
             Run history
-          </Btn>
+          </button>
         </div>
       </div>
     </header>
@@ -130,7 +135,6 @@ interface TargetProps {
 }
 
 export function TargetPanel(props: TargetProps) {
-  // Label for primary run button following scope
   const runBtnLabel = {
     site: "Test whole site",
     page: "Test this page",
@@ -140,36 +144,25 @@ export function TargetPanel(props: TargetProps) {
 
   return (
     <div className="relative">
-      {/* Subtle radial emerald glow behind Target panel */}
-      <div
-        className="absolute -top-12 left-1/2 -translate-x-1/2 w-[85%] h-44 pointer-events-none rounded-full blur-2xl"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 0%, rgba(62,207,142,0.16) 0%, rgba(62,207,142,0) 70%)",
-        }}
-        aria-hidden="true"
-      />
-
-      <section className="relative bg-[#171717] border border-[#2E2E2E] rounded-[12px] p-6 hover:border-[#363636] transition-colors">
+      <section className="relative bg-[#FAF6EE] border border-[#E8E1D3] rounded-[12px] p-6 hover:border-[#DAD2C1] transition-colors shadow-[0_2px_12px_rgba(24,23,22,0.04)]">
         <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
           <div>
-            <h1 className="text-[32px] leading-[38px] font-medium tracking-[-0.02em] text-[#EDEDED]">
+            <h1 className="text-[32px] leading-[38px] font-semibold tracking-[-0.02em] text-[#181716]">
               Test a live page
             </h1>
-            <p className="text-sm text-[#A0A0A0] mt-1 max-w-2xl">
+            <p className="text-sm text-[#45423E] mt-1 max-w-2xl">
               Paste a public URL or connect to localhost. Playwright tests it and writes the fix.
             </p>
           </div>
 
-          {/* Mode Segmented Control: Public URL | Localhost */}
-          <div className="flex items-center p-1 bg-[#1C1C1C] rounded-[8px] border border-[#2E2E2E]">
+          <div className="flex items-center p-1 bg-[#F2ECE0] rounded-[8px] border border-[#DAD2C1]">
             <button
               type="button"
               onClick={() => props.setMode("public")}
               className={`px-3 py-1.5 text-xs font-medium rounded-[6px] transition-colors ${
                 props.mode === "public"
-                  ? "bg-[#006239] text-[#3ECF8E] border border-[#3ECF8E]/50 shadow-sm"
-                  : "text-[#A0A0A0] hover:text-[#EDEDED]"
+                  ? "bg-[#181716] text-[#FAF6EE] shadow-sm"
+                  : "text-[#45423E] hover:text-[#181716]"
               }`}
             >
               Public URL
@@ -179,8 +172,8 @@ export function TargetPanel(props: TargetProps) {
               onClick={() => props.setMode("localhost")}
               className={`px-3 py-1.5 text-xs font-medium rounded-[6px] transition-colors ${
                 props.mode === "localhost"
-                  ? "bg-[#006239] text-[#3ECF8E] border border-[#3ECF8E]/50 shadow-sm"
-                  : "text-[#A0A0A0] hover:text-[#EDEDED]"
+                  ? "bg-[#181716] text-[#FAF6EE] shadow-sm"
+                  : "text-[#45423E] hover:text-[#181716]"
               }`}
             >
               Localhost
@@ -188,10 +181,9 @@ export function TargetPanel(props: TargetProps) {
           </div>
         </div>
 
-        {/* Test Scope Segmented Control */}
-        <div className="mb-5 p-3 rounded-[8px] bg-[#1C1C1C] border border-[#2E2E2E] flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-5 p-3 rounded-[8px] bg-[#F7F4EB] border border-[#E8E1D3] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[#A0A0A0] font-medium">Test scope:</span>
+            <span className="text-xs text-[#45423E] font-medium">Test scope:</span>
             <div className="flex items-center gap-1">
               {(
                 [
@@ -207,8 +199,8 @@ export function TargetPanel(props: TargetProps) {
                   onClick={() => props.setScope(sKey)}
                   className={`px-2.5 py-1 text-xs rounded-[6px] transition-colors ${
                     props.scope === sKey
-                      ? "bg-[#006239] text-[#EDEDED] font-medium border border-[#3ECF8E]"
-                      : "text-[#A0A0A0] hover:bg-[#232323] hover:text-[#EDEDED]"
+                      ? "bg-[#181716] text-[#FAF6EE] font-medium"
+                      : "text-[#45423E] hover:bg-[#F2ECE0] hover:text-[#181716]"
                   }`}
                 >
                   {sLabel}
@@ -218,55 +210,53 @@ export function TargetPanel(props: TargetProps) {
           </div>
 
           {props.scope === "site" && (
-            <div className="flex items-center gap-2 text-xs text-[#A0A0A0]">
+            <div className="flex items-center gap-2 text-xs text-[#45423E]">
               <span>Max pages:</span>
-              <div className="flex items-center border border-[#363636] rounded-[6px] overflow-hidden bg-[#121212]">
+              <div className="flex items-center border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FAF6EE]">
                 <button
                   type="button"
                   onClick={() => props.setMaxPages(Math.max(1, props.maxPages - 1))}
-                  className="px-2 py-0.5 hover:bg-[#232323] text-[#EDEDED]"
+                  className="px-2 py-0.5 hover:bg-[#F2ECE0] text-[#181716]"
                 >
                   -
                 </button>
-                <span className="px-2 font-mono text-[#EDEDED]">{props.maxPages}</span>
+                <span className="px-2 font-mono text-[#181716]">{props.maxPages}</span>
                 <button
                   type="button"
                   onClick={() => props.setMaxPages(Math.min(25, props.maxPages + 1))}
-                  className="px-2 py-0.5 hover:bg-[#232323] text-[#EDEDED]"
+                  className="px-2 py-0.5 hover:bg-[#F2ECE0] text-[#181716]"
                 >
                   +
                 </button>
               </div>
-              <span className="text-[#707070] hidden sm:inline">
+              <span className="text-[#76716B] hidden sm:inline">
                 (Follows same-origin links from start page)
               </span>
             </div>
           )}
 
           {props.scope === "region" && (
-            <span className="text-xs text-[#3ECF8E] font-mono">
+            <span className="text-xs text-[#181716] font-mono font-medium">
               ⌖ Drag a box in Live Preview to specify testing bounds
             </span>
           )}
 
           {props.scope === "element" && (
-            <span className="text-xs text-[#3ECF8E] font-mono">
+            <span className="text-xs text-[#181716] font-mono font-medium">
               ↖ Click an element in Live Preview to inspect its subtree
             </span>
           )}
         </div>
 
-        {/* Inputs row */}
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-start">
-          {/* URL Input: Public vs Localhost */}
           <div className="flex-[2.5] min-w-0">
             {props.mode === "public" ? (
               <div>
-                <label htmlFor="url-input" className="block text-xs text-[#A0A0A0] mb-1.5 font-medium">
+                <label htmlFor="url-input" className="block text-xs text-[#45423E] mb-1.5 font-medium">
                   Page URL
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-3.5 text-[#707070] pointer-events-none" aria-hidden="true">
+                  <span className="absolute left-3.5 top-3.5 text-[#76716B] pointer-events-none" aria-hidden="true">
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                       <circle cx="12" cy="12" r="10" />
                       <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
@@ -283,8 +273,8 @@ export function TargetPanel(props: TargetProps) {
                     placeholder="https://my-site.dev"
                     aria-invalid={!!props.error}
                     aria-describedby={props.error ? "url-error" : undefined}
-                    className={`w-full h-11 bg-[#1C1C1C] rounded-[6px] pl-10 pr-3 text-sm text-[#EDEDED] font-mono placeholder:text-[#707070] border transition-colors focus:outline-none focus:border-[#3ECF8E] focus:ring-2 focus:ring-[rgba(62,207,142,0.2)] ${
-                      props.error ? "border-[#EF4444]" : "border-[#363636]"
+                    className={`w-full h-11 bg-[#F7F4EB] rounded-[6px] pl-10 pr-3 text-sm text-[#181716] font-mono placeholder:text-[#8A847E] border transition-colors focus:outline-none focus:border-[#181716] focus:ring-2 focus:ring-[rgba(24,23,22,0.15)] ${
+                      props.error ? "border-[#DC2626]" : "border-[#DAD2C1]"
                     }`}
                   />
                 </div>
@@ -292,22 +282,22 @@ export function TargetPanel(props: TargetProps) {
             ) : (
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="localhost-port" className="block text-xs text-[#A0A0A0] font-medium">
+                  <label htmlFor="localhost-port" className="block text-xs text-[#45423E] font-medium">
                     Localhost Target
                   </label>
                   <button
                     type="button"
                     onClick={props.onDetectLocal}
                     disabled={props.detectingServers}
-                    className="text-xs text-[#3ECF8E] hover:underline flex items-center gap-1 font-mono"
+                    className="text-xs text-[#181716] font-semibold hover:underline flex items-center gap-1 font-mono"
                   >
-                    {props.detectingServers ? <Spinner className="w-3 h-3 text-[#3ECF8E]" /> : "⚡"}
+                    {props.detectingServers ? <Spinner className="w-3 h-3 text-[#181716]" /> : "⚡"}
                     Detect running apps
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center flex-1 h-11 bg-[#1C1C1C] rounded-[6px] border border-[#363636] px-3 font-mono text-sm">
-                    <span className="text-[#A0A0A0] select-none">http://localhost:</span>
+                  <div className="flex items-center flex-1 h-11 bg-[#F7F4EB] rounded-[6px] border border-[#DAD2C1] px-3 font-mono text-sm">
+                    <span className="text-[#76716B] select-none">http://localhost:</span>
                     <input
                       id="localhost-port"
                       type="number"
@@ -319,9 +309,9 @@ export function TargetPanel(props: TargetProps) {
                         if (e.key === "Enter") props.onLoadPreview();
                       }}
                       placeholder="5173"
-                      className="w-16 bg-transparent text-[#EDEDED] focus:outline-none px-1"
+                      className="w-16 bg-transparent text-[#181716] focus:outline-none px-1"
                     />
-                    <span className="text-[#707070]">/</span>
+                    <span className="text-[#8A847E]">/</span>
                     <input
                       type="text"
                       value={props.path}
@@ -330,15 +320,14 @@ export function TargetPanel(props: TargetProps) {
                         if (e.key === "Enter") props.onLoadPreview();
                       }}
                       placeholder="path (optional)"
-                      className="flex-1 bg-transparent text-[#EDEDED] focus:outline-none px-1 text-xs"
+                      className="flex-1 bg-transparent text-[#181716] focus:outline-none px-1 text-xs"
                     />
                   </div>
                 </div>
 
-                {/* Detected apps chips */}
                 {props.detectedServers.length > 0 && (
                   <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                    <span className="text-[11px] text-[#707070]">Detected:</span>
+                    <span className="text-[11px] text-[#76716B]">Detected:</span>
                     {props.detectedServers.map((srv) => (
                       <button
                         key={srv.port}
@@ -347,7 +336,7 @@ export function TargetPanel(props: TargetProps) {
                           props.setPort(String(srv.port));
                           props.setPath("");
                         }}
-                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#232323] border border-[#2E2E2E] text-[#3ECF8E] hover:border-[#3ECF8E]"
+                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#FAF6EE] border border-[#DAD2C1] text-[#181716] hover:border-[#181716]"
                       >
                         localhost:{srv.port} ({srv.title})
                       </button>
@@ -358,15 +347,14 @@ export function TargetPanel(props: TargetProps) {
             )}
 
             {props.error && (
-              <p id="url-error" className="text-xs text-[#EF4444] mt-1.5 flex items-center gap-1.5">
+              <p id="url-error" className="text-xs text-[#DC2626] mt-1.5 flex items-center gap-1.5">
                 <span>✕</span> {props.error}
               </p>
             )}
           </div>
 
-          {/* Bug description */}
           <div className="flex-[2.5] min-w-0">
-            <label htmlFor="desc-input" className="block text-xs text-[#A0A0A0] mb-1.5 font-medium">
+            <label htmlFor="desc-input" className="block text-xs text-[#45423E] mb-1.5 font-medium">
               What looks wrong?
             </label>
             <input
@@ -375,11 +363,10 @@ export function TargetPanel(props: TargetProps) {
               value={props.desc}
               onChange={(e) => props.setDesc(e.target.value)}
               placeholder="Navbar overflows on mobile"
-              className="w-full h-11 bg-[#1C1C1C] rounded-[6px] px-3.5 text-sm text-[#EDEDED] placeholder:text-[#707070] border border-[#363636] transition-colors focus:outline-none focus:border-[#3ECF8E] focus:ring-2 focus:ring-[rgba(62,207,142,0.2)]"
+              className="w-full h-11 bg-[#F7F4EB] rounded-[6px] px-3.5 text-sm text-[#181716] placeholder:text-[#8A847E] border border-[#DAD2C1] transition-colors focus:outline-none focus:border-[#181716] focus:ring-2 focus:ring-[rgba(24,23,22,0.15)]"
             />
           </div>
 
-          {/* Buttons: Load Preview + Primary Test Run */}
           <div className="flex items-center gap-2 lg:pt-[22px] flex-wrap">
             <Btn
               id="load-preview-btn"
@@ -389,7 +376,7 @@ export function TargetPanel(props: TargetProps) {
               onClick={props.onLoadPreview}
               className="whitespace-nowrap"
             >
-              <svg className="w-4 h-4 text-[#A0A0A0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="w-4 h-4 text-[#45423E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
@@ -407,7 +394,7 @@ export function TargetPanel(props: TargetProps) {
               >
                 {props.running ? (
                   <>
-                    <Spinner className="w-4 h-4 text-[#EDEDED]" />
+                    <Spinner className="w-4 h-4 text-[#FAF6EE]" />
                     Testing...
                   </>
                 ) : (
@@ -420,7 +407,7 @@ export function TargetPanel(props: TargetProps) {
                 )}
               </Btn>
               {props.disabledReason && !props.canRun && (
-                <div className="absolute right-0 top-full mt-1.5 hidden group-hover:block bg-[#1C1C1C] border border-[#2E2E2E] text-[11px] text-[#A0A0A0] px-2.5 py-1 rounded shadow-lg whitespace-nowrap z-30">
+                <div className="absolute right-0 top-full mt-1.5 hidden group-hover:block bg-[#181716] border border-[#282624] text-[11px] text-[#FAF6EE] px-2.5 py-1 rounded shadow-lg whitespace-nowrap z-30">
                   {props.disabledReason}
                 </div>
               )}
@@ -434,13 +421,12 @@ export function TargetPanel(props: TargetProps) {
           </div>
         </div>
 
-        {/* Second row of controls: Context note, Sample bug, Viewports */}
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#2E2E2E]">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#E8E1D3]">
           <div className="flex items-center gap-3 flex-wrap">
             <Btn id="sample-btn" variant="ghost" onClick={props.onSample}>
               Use sample bug
             </Btn>
-            <div className="h-4 w-px bg-[#2E2E2E] hidden sm:block" />
+            <div className="h-4 w-px bg-[#DAD2C1] hidden sm:block" />
             <div className="flex items-center gap-2">
               <Chip
                 id="vp-desktop"
@@ -466,7 +452,7 @@ export function TargetPanel(props: TargetProps) {
             </div>
           </div>
 
-          <p className="text-xs text-[#707070]">
+          <p className="text-xs text-[#76716B]">
             {props.mode === "public"
               ? "Only public sites are allowed here. Switch to Localhost to test an app on this machine."
               : "Testing runs on this machine. Nothing leaves your computer except the AI diagnosis request."}

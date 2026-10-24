@@ -443,22 +443,15 @@ export function App() {
           </div>
         )}
 
-        {/* MAIN GRID (3 Columns: 4 / 5 / 3 of 12) */}
+        {/* TOP STATUS GRID: Website Snapshot, Playwright Live Session, & Issues Found */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* LEFT: Website Overview (4/12) */}
-          <div className="lg:col-span-4 space-y-6 order-4 lg:order-1">
+          {/* Site Snapshot (4/12) */}
+          <div className="lg:col-span-4 order-3 lg:order-1">
             <SiteSnapshot info={currentSiteInfo} loading={isRunning} />
-            <Screenshots
-              ready={status !== "idle" && !isFailedBlocked && !isRunning}
-              loading={isRunning}
-              onZoom={(src) => setZoomSrc(src)}
-              captures={captures}
-              availablePages={["/catalog", "/products"]}
-            />
           </div>
 
-          {/* CENTER: Playwright Live Session (5/12) */}
-          <div ref={sessionRef} id="session-section" className="lg:col-span-5 order-2 lg:order-2">
+          {/* Playwright Live Session (5/12) */}
+          <div ref={sessionRef} id="session-section" className="lg:col-span-5 order-1 lg:order-2">
             <PlaywrightTimeline
               actions={currentActions}
               loading={isRunning}
@@ -468,8 +461,8 @@ export function App() {
             />
           </div>
 
-          {/* RIGHT: Issues Found (3/12) */}
-          <div ref={issuesRef} id="issues-section" className="lg:col-span-3 order-3 lg:order-3">
+          {/* Issues Found (3/12) */}
+          <div ref={issuesRef} id="issues-section" className="lg:col-span-3 order-2 lg:order-3">
             <IssuesFound
               issues={currentIssues}
               loading={isRunning}
@@ -482,14 +475,28 @@ export function App() {
           </div>
         </div>
 
-        {/* CODE WORKSPACE (Full width) */}
-        <div ref={codeRef} id="code-section" className="w-full">
-          <CodeWorkspace
-            onCopy={handleCopy}
-            scope={scope}
-            region={region}
-            element={pickedElement}
-          />
+        {/* HORIZONTAL LINE: Captures & Screenshots side-by-side with Developed Code */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+          {/* Captures & Screenshots (5/12) */}
+          <div className="xl:col-span-5 w-full">
+            <Screenshots
+              ready={status !== "idle" && !isFailedBlocked && !isRunning}
+              loading={isRunning}
+              onZoom={(src) => setZoomSrc(src)}
+              captures={captures}
+              availablePages={["/catalog", "/products"]}
+            />
+          </div>
+
+          {/* Developed Code Workspace (7/12) */}
+          <div ref={codeRef} id="code-section" className="xl:col-span-7 w-full">
+            <CodeWorkspace
+              onCopy={handleCopy}
+              scope={scope}
+              region={region}
+              element={pickedElement}
+            />
+          </div>
         </div>
 
         {/* REPORT PANEL (Full width, bottom) */}

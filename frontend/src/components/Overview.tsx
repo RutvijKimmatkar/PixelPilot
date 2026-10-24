@@ -1,44 +1,9 @@
 import { useState } from "react";
 import type { SiteInfo, CaptureItem } from "../types/console";
 import { EmptyState, Panel, Skeleton } from "./ui";
+import { DESKTOP_SHOT, MOBILE_SHOT } from "../lib/demoScreenshots";
 
-const createSvgDataUrl = (w: number, h: number, body: string) =>
-  `data:image/svg+xml;utf8,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}" fill="#121212"/>${body}</svg>`
-  )}`;
-
-export const DESKTOP_SHOT = createSvgDataUrl(
-  1280,
-  800,
-  `<rect width="1280" height="72" fill="#171717" stroke="#2E2E2E"/>
-   <rect x="36" y="22" width="28" height="28" rx="6" fill="#3ECF8E"/>
-   <text x="76" y="42" font-family="sans-serif" font-size="20" font-weight="700" fill="#EDEDED">Acme Shop</text>
-   <text x="820" y="42" font-family="sans-serif" font-size="14" fill="#A0A0A0">Home    Catalog    Categories    Sale    Contact</text>
-   <rect x="36" y="104" width="1208" height="340" rx="10" fill="#1C1C1C" stroke="#2E2E2E"/>
-   <text x="76" y="260" font-family="sans-serif" font-size="44" font-weight="700" fill="#EDEDED">New Season Arrivals</text>
-   <text x="76" y="300" font-family="sans-serif" font-size="16" fill="#A0A0A0">Designed for modern developers and designers</text>
-   <rect x="76" y="330" width="140" height="42" rx="6" fill="#006239" stroke="#3ECF8E"/>
-   <text x="115" y="356" font-family="sans-serif" font-size="14" font-weight="600" fill="#EDEDED">Shop now</text>
-   <rect x="36" y="476" width="280" height="280" rx="8" fill="#171717" stroke="#2E2E2E"/>
-   <rect x="344" y="476" width="280" height="280" rx="8" fill="#171717" stroke="#2E2E2E"/>
-   <rect x="652" y="476" width="280" height="280" rx="8" fill="#171717" stroke="#2E2E2E"/>
-   <rect x="960" y="476" width="284" height="280" rx="8" fill="#171717" stroke="#2E2E2E"/>`
-);
-
-export const MOBILE_SHOT = createSvgDataUrl(
-  375,
-  812,
-  `<rect width="612" height="60" fill="#171717" stroke="#2E2E2E"/>
-   <text x="16" y="36" font-family="sans-serif" font-size="16" font-weight="700" fill="#EDEDED">Acme</text>
-   <text x="80" y="36" font-family="sans-serif" font-size="14" fill="#A0A0A0">Home   Catalog   Categories   Sale   Contact</text>
-   <rect x="0" y="0" width="375" height="60" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="6,4"/>
-   <text x="12" y="78" font-family="monospace" font-size="10" fill="#EF4444">▲ 612px navbar overflows 375px viewport</text>
-   <rect x="16" y="96" width="480" height="220" rx="8" fill="#1C1C1C" stroke="#2E2E2E"/>
-   <rect x="16" y="96" width="343" height="220" fill="none" stroke="#F5A524" stroke-width="2.5" stroke-dasharray="6,4"/>
-   <text x="16" y="332" font-family="monospace" font-size="10" fill="#F5A524">● 480px image in 343px container</text>
-   <text x="32" y="200" font-family="sans-serif" font-size="24" font-weight="700" fill="#EDEDED">New Season</text>
-   <rect x="16" y="356" width="343" height="180" rx="8" fill="#171717" stroke="#2E2E2E"/>`
-);
+export { DESKTOP_SHOT, MOBILE_SHOT };
 
 export function SiteSnapshot({ info, loading }: { info: SiteInfo | null; loading: boolean }) {
   return (
@@ -58,32 +23,32 @@ export function SiteSnapshot({ info, loading }: { info: SiteInfo | null; loading
         <div className="flex-1 flex flex-col justify-between">
           <div className="flex items-center gap-3">
             <span
-              className="w-8 h-8 rounded-[6px] bg-[#1C1C1C] border border-[#2E2E2E] grid place-items-center text-xs font-bold text-[#3ECF8E]"
+              className="w-8 h-8 rounded-[6px] bg-[#1C1B19] border border-[#2A2825] grid place-items-center text-xs font-bold text-[#FAF7F0] shadow-[0_1px_4px_rgba(250,247,240,0.15)]"
               aria-hidden="true"
             >
               A
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-[#EDEDED] truncate">{info.title}</p>
-              <p className="text-xs font-mono text-[#707070] truncate">{info.url}</p>
+              <p className="text-sm font-medium text-[#FAF8F5] truncate">{info.title}</p>
+              <p className="text-xs font-mono text-[#8C8578] truncate">{info.url}</p>
             </div>
           </div>
           <dl className="grid grid-cols-2 gap-3 mt-4 flex-1">
             {[
-              ["Scope", info.scope ?? "This page", "text-[#3ECF8E]"],
-              ["Pages tested", info.pagesTested ?? 1, "text-[#EDEDED]"],
+              ["Scope", info.scope ?? "This page", "text-[#FAF7F0]"],
+              ["Pages tested", info.pagesTested ?? 1, "text-[#FAF8F5]"],
               ["HTTP status", info.status, "text-[#3ECF8E]"],
-              ["Load time", info.loadTime, "text-[#EDEDED]"],
-              ["Page weight", info.pageWeight, "text-[#EDEDED]"],
-              ["DOM nodes", info.domNodes, "text-[#EDEDED]"],
-              ["Console errors", info.consoleErrors, info.consoleErrors ? "text-[#F5A524]" : "text-[#EDEDED]"],
-              ["Viewports tested", info.viewports.length, "text-[#EDEDED]"],
+              ["Load time", info.loadTime, "text-[#FAF8F5]"],
+              ["Page weight", info.pageWeight, "text-[#FAF8F5]"],
+              ["DOM nodes", info.domNodes, "text-[#FAF8F5]"],
+              ["Console errors", info.consoleErrors, info.consoleErrors ? "text-[#F5A524]" : "text-[#FAF8F5]"],
+              ["Viewports tested", info.viewports.length, "text-[#FAF8F5]"],
             ].map(([label, val, col]) => (
               <div
                 key={label as string}
-                className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-3 hover:border-[#363636] transition-colors flex flex-col justify-center"
+                className="bg-[#141312] border border-[#2A2825] rounded-[8px] p-3 hover:border-[#3E3A34] transition-colors shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)] flex flex-col justify-center"
               >
-                <dt className="text-xs text-[#A0A0A0]">{label}</dt>
+                <dt className="text-xs text-[#B8B2A7]">{label}</dt>
                 <dd className={`text-[20px] leading-7 font-medium mt-1 font-mono truncate ${col}`}>
                   {val}
                 </dd>
@@ -126,10 +91,10 @@ export function Screenshots({
           role="tab"
           aria-selected={tab === k}
           onClick={() => setTab(k)}
-          className={`text-xs pb-1 border-b-2 font-medium transition-colors ${
+          className={`text-xs pb-1 border-b-2 font-medium transition-all ${
             tab === k
-              ? "border-[#3ECF8E] text-[#EDEDED]"
-              : "border-transparent text-[#A0A0A0] hover:text-[#EDEDED]"
+              ? "border-[#FAF7F0] text-[#FAF8F5] drop-shadow-[0_1px_4px_rgba(250,247,240,0.2)]"
+              : "border-transparent text-[#B8B2A7] hover:text-[#FAF8F5]"
           }`}
         >
           {label}
@@ -147,7 +112,7 @@ export function Screenshots({
             <select
               value={page}
               onChange={(e) => setPage(e.target.value)}
-              className="h-6 bg-[#1C1C1C] border border-[#2E2E2E] rounded px-1.5 text-[11px] text-[#A0A0A0]"
+              className="h-6 bg-[#141312] border border-[#2A2825] rounded px-1.5 text-[11px] text-[#B8B2A7]"
             >
               <option value="all">Page 1 (/)</option>
               {availablePages.map((p) => (
@@ -171,16 +136,16 @@ export function Screenshots({
             type="button"
             id="zoom-desktop"
             onClick={() => onZoom(DESKTOP_SHOT)}
-            className="block w-full rounded-[8px] overflow-hidden border border-[#2E2E2E] hover:border-[#3ECF8E] transition-colors group cursor-zoom-in"
+            className="block w-full rounded-[8px] overflow-hidden border border-[#2A2825] hover:border-[#FAF7F0] transition-colors group cursor-zoom-in"
           >
             <img src={DESKTOP_SHOT} alt="Desktop screenshot at 1280px" className="w-full" />
           </button>
-          <p className="text-right text-[11px] font-mono text-[#707070]">Click image to inspect full size</p>
+          <p className="text-right text-[11px] font-mono text-[#8C8578]">Click image to inspect full size</p>
         </div>
       ) : tab === "mobile" ? (
         <div className="space-y-3">
-          <div className="mx-auto w-52 rounded-[32px] border-[8px] border-[#1C1C1C] bg-[#121212] p-1.5 shadow-2xl relative">
-            <div className="mx-auto w-14 h-2 rounded-full bg-[#232323] mb-1.5" />
+          <div className="mx-auto w-52 rounded-[32px] border-[8px] border-[#1C1B19] bg-[#0F0E0D] p-1.5 shadow-2xl relative">
+            <div className="mx-auto w-14 h-2 rounded-full bg-[#24221F] mb-1.5" />
             <button
               type="button"
               id="zoom-mobile"
@@ -193,15 +158,15 @@ export function Screenshots({
                 className="w-full group-hover:scale-105 transition-transform duration-200"
               />
             </button>
-            <div className="mx-auto w-20 h-1 rounded-full bg-[#232323] mt-2 mb-0.5" />
+            <div className="mx-auto w-20 h-1 rounded-full bg-[#24221F] mt-2 mb-0.5" />
           </div>
-          <p className="text-center text-[11px] font-mono text-[#707070]">Phone frame emulation: 375×812</p>
+          <p className="text-center text-[11px] font-mono text-[#8C8578]">Phone frame emulation: 375×812</p>
         </div>
       ) : (
         // Crops & Area captures tab
         <div className="space-y-2">
           {captures.length === 0 ? (
-            <p className="text-xs text-[#707070] text-center py-6">
+            <p className="text-xs text-[#8C8578] text-center py-6 font-mono">
               No region or element crops saved yet. Draw a box in Live Preview to capture one.
             </p>
           ) : (
@@ -210,12 +175,12 @@ export function Screenshots({
                 <div
                   key={cap.id}
                   onClick={() => onZoom(cap.imageUrl || DESKTOP_SHOT)}
-                  className="p-2 rounded bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#3ECF8E] cursor-zoom-in transition-colors text-xs font-mono"
+                  className="p-2 rounded bg-[#141312] border border-[#2A2825] hover:border-[#FAF7F0] cursor-zoom-in transition-colors text-xs font-mono shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)]"
                 >
-                  <div className="h-20 bg-[#121212] rounded flex items-center justify-center text-[#3ECF8E]">
+                  <div className="h-20 bg-[#0F0E0D] rounded flex items-center justify-center text-[#FAF7F0]">
                     {cap.width}×{cap.height}
                   </div>
-                  <p className="mt-1 truncate text-[#EDEDED] font-sans">{cap.label}</p>
+                  <p className="mt-1 truncate text-[#FAF8F5] font-sans">{cap.label}</p>
                 </div>
               ))}
             </div>

@@ -14,7 +14,8 @@ import type {
 } from "./types/console";
 import { TopBar } from "./components/Header";
 import { CombinedTargetAndPreview } from "./components/CombinedTargetAndPreview";
-import { SiteSnapshot, Screenshots, DESKTOP_SHOT, MOBILE_SHOT } from "./components/Overview";
+import { SiteSnapshot, Screenshots } from "./components/Overview";
+import { DESKTOP_SHOT, MOBILE_SHOT } from "./lib/demoScreenshots";
 import { PlaywrightTimeline, IssuesFound } from "./components/TimelineAndIssues";
 import { CodeWorkspace } from "./components/CodeWorkspace";
 import { ReportPanel } from "./components/ReportPanel";
@@ -39,7 +40,6 @@ export function App() {
   const [vp, setVp] = useState({ desktop: true, tablet: false, mobile: true });
 
   // Preview interactive state
-  const [previewUrl, setPreviewUrl] = useState<string>("https://shop.acme-demo.dev");
   const [previewViewport, setPreviewViewport] = useState<ViewportKey>("mobile");
   const [previewTool, setPreviewTool] = useState<PreviewTool>("region");
   const [region, setRegion] = useState<SelectionRegion | null>(null);
@@ -85,12 +85,7 @@ export function App() {
       ? url.trim()
       : `http://localhost:${port}${path ? (path.startsWith("/") ? path : `/${path}`) : ""}`;
 
-  // Keep preview URL synchronized with active target URL
-  useEffect(() => {
-    if (activeTargetUrl && !activeTargetUrl.includes("undefined")) {
-      setPreviewUrl(activeTargetUrl);
-    }
-  }, [activeTargetUrl]);
+  const previewUrl = activeTargetUrl || "https://shop.acme-demo.dev";
 
   // URL validation error message
   const urlError = (() => {
@@ -137,7 +132,6 @@ export function App() {
   // Stream in actions when in running state + smooth scrolling flow
   useEffect(() => {
     if (!isRunning) return;
-    setRunningActionIndex(1);
     scrollToSection(sessionRef);
 
     const interval = setInterval(() => {
@@ -235,6 +229,7 @@ export function App() {
       }
     }
     setIsFailedBlocked(false);
+    setRunningActionIndex(1);
     setStatus("running");
     setHasReport(false);
   };
@@ -284,7 +279,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121212] text-[#EDEDED] flex flex-col font-sans selection:bg-[#006239] selection:text-[#3ECF8E]">
+    <div className="min-h-screen bg-[#0F0E0D] text-[#FAF8F5] flex flex-col font-sans selection:bg-[#2A2720] selection:text-[#FAF7F0]">
       {/* 1. TOP BAR */}
       <TopBar
         state={
@@ -307,40 +302,40 @@ export function App() {
       {/* Floating Section Nav at right edge */}
       <nav
         aria-label="Section shortcuts"
-        className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden 2xl:flex flex-col gap-1 bg-[#171717]/95 backdrop-blur-md border border-[#2E2E2E] p-1.5 rounded-[8px] shadow-2xl"
+        className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden 2xl:flex flex-col gap-1 bg-[#141312]/95 backdrop-blur-md border border-[#2A2825] p-1.5 rounded-[8px] shadow-2xl shadow-[inset_0_1px_0_0_rgba(253,248,241,0.04)]"
       >
         <button
           onClick={() => scrollToSection(targetAndPreviewRef)}
           title="Scroll to Target & Preview"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           ↑ Target & Preview
         </button>
         <button
           onClick={() => scrollToSection(sessionRef)}
           title="Scroll to Playwright Live Session"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           ▶ Session
         </button>
         <button
           onClick={() => scrollToSection(issuesRef)}
           title="Scroll to Issues Found"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           ▲ Issues
         </button>
         <button
           onClick={() => scrollToSection(codeRef)}
           title="Scroll to Developed Code"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           { } Code
         </button>
         <button
           onClick={() => scrollToSection(reportRef)}
           title="Scroll to Report"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#B8B2A7] hover:text-[#FAF8F5] hover:bg-[#1E1D1A] rounded transition-colors text-left"
         >
           ↓ Report
         </button>
@@ -417,7 +412,7 @@ export function App() {
           <div
             ref={blockedBannerRef}
             id="blocked-banner"
-            className="bg-[rgba(239,68,68,0.12)] border border-[#EF4444] rounded-[8px] p-4 flex items-center justify-between gap-4 animate-slide-in"
+            className="bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.35)] rounded-[8px] p-4 flex items-center justify-between gap-4 animate-slide-in shadow-[inset_0_1px_0_0_rgba(239,68,68,0.12)]"
           >
             <div className="flex items-center gap-3">
               <span className="text-[#EF4444] font-bold text-base">✕</span>
@@ -425,7 +420,7 @@ export function App() {
                 <h3 className="text-sm font-medium text-[#EF4444]">
                   This URL was blocked: it points to a private network address or cloud metadata service.
                 </h3>
-                <p className="text-xs text-[#A0A0A0] mt-0.5">
+                <p className="text-xs text-[#B8B2A7] mt-0.5">
                   Playwright security rules forbid inspecting internal subnets, RFC1918 loopbacks, or 169.254.x.x addresses in Public URL mode.
                 </p>
               </div>

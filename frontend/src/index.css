@@ -1,16 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #121212;
-  --color-surface: #171717;
-  --color-elevated: #1C1C1C;
-  --color-hover: #232323;
-  --color-border-subtle: #2E2E2E;
-  --color-border-default: #363636;
-  --color-border-strong: #454545;
-  --color-text-primary: #EDEDED;
-  --color-text-secondary: #A0A0A0;
-  --color-text-muted: #707070;
+  --color-canvas: #0F0E0D;
+  --color-surface: #161514;
+  --color-elevated: #1C1B19;
+  --color-hover: #24221F;
+  --color-border-subtle: #2A2825;
+  --color-border-default: #36332E;
+  --color-border-strong: #4A463F;
+  --color-text-primary: #FAF8F5;
+  --color-text-secondary: #B8B2A7;
+  --color-text-muted: #7E776C;
+  --color-cream-50: #FAF8F5;
+  --color-cream-100: #FAF7F0;
+  --color-cream-200: #F5EFE0;
+  --color-cream-300: #E7DCB9;
+  --color-cream-muted: #8C8578;
   --color-brand: #3ECF8E;
   --color-brand-hover: #00C573;
   --color-brand-deep: #006239;
@@ -18,34 +23,34 @@
   --color-success: #3ECF8E;
   --color-error: #EF4444;
   --color-warning: #F5A524;
-  --color-code-bg: #171717;
+  --color-code-bg: #141312;
   --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "Source Code Pro", ui-monospace, Menlo, Consolas, monospace;
 }
 
 :root {
-  --bg-canvas: #121212;
-  --bg-surface: #171717;
-  --bg-elevated: #1C1C1C;
-  --bg-hover: #232323;
-  --border-subtle: #2E2E2E;
-  --border-default: #363636;
-  --border-strong: #454545;
-  --text-primary: #EDEDED;
-  --text-secondary: #A0A0A0;
-  --text-muted: #707070;
+  --bg-canvas: #0F0E0D;
+  --bg-surface: #161514;
+  --bg-elevated: #1C1B19;
+  --bg-hover: #24221F;
+  --border-subtle: #2A2825;
+  --border-default: #36332E;
+  --border-strong: #4A463F;
+  --text-primary: #FAF8F5;
+  --text-secondary: #B8B2A7;
+  --text-muted: #7E776C;
   --brand: #3ECF8E;
   --brand-hover: #00C573;
   --brand-deep: #006239;
   --brand-tint: rgba(62, 207, 142, 0.10);
-  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(62, 207, 142, 0.16) 0%, rgba(62, 207, 142, 0) 60%);
+  --brand-glow: radial-gradient(ellipse at 50% 0%, rgba(250, 247, 240, 0.08) 0%, rgba(62, 207, 142, 0.08) 35%, rgba(15, 14, 13, 0) 70%);
   --success: #3ECF8E;
   --success-fill: rgba(62, 207, 142, 0.12);
   --error: #EF4444;
   --error-fill: rgba(239, 68, 68, 0.14);
   --warning: #F5A524;
   --warning-fill: rgba(245, 165, 36, 0.14);
-  --code-bg: #171717;
+  --code-bg: #141312;
 
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
@@ -59,8 +64,11 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #121212;
-  color: #EDEDED;
+  background-color: #0F0E0D;
+  color: #FAF8F5;
+  background-image: var(--brand-glow);
+  background-repeat: no-repeat;
+  background-size: 100% 900px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -70,7 +78,7 @@ body {
 }
 
 .brand-glow-bg {
-  background-image: radial-gradient(ellipse 90% 120px at 50% 0%, rgba(62, 207, 142, 0.16) 0%, rgba(62, 207, 142, 0) 70%);
+  background-image: radial-gradient(ellipse 90% 160px at 50% 0%, rgba(250, 247, 240, 0.07) 0%, rgba(62, 207, 142, 0.12) 40%, rgba(15, 14, 13, 0) 70%);
 }
 
 /* Custom scrollbars */
@@ -79,14 +87,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #121212;
+  background: #0F0E0D;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2E2E2E;
+  background: #2C2A26;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #363636;
+  background: #3E3A34;
 }
 
 @keyframes slideInLeft {

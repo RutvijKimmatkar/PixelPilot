@@ -99,43 +99,6 @@ export function PlaywrightTimeline({
           )}
         </div>
       )}
-
-      {/* Live browser view mini preview footer strip */}
-      <div className="mt-4 pt-3 border-t border-[#2E2E2E]">
-        <div className="flex items-center justify-between text-xs text-[#A0A0A0] mb-2">
-          <span className="font-medium flex items-center gap-2">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                loading ? "bg-[#3ECF8E] animate-ping" : "bg-[#707070]"
-              }`}
-            />
-            Live browser view (Chromium Headless)
-          </span>
-          {loading && (
-            <span className="text-[#3ECF8E] text-[11px] font-mono tracking-wide uppercase flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3ECF8E]" /> Recording
-            </span>
-          )}
-        </div>
-        <div className="aspect-video w-full rounded-[6px] border border-[#2E2E2E] bg-[#121212] overflow-hidden relative flex items-center justify-center">
-          <div className="w-full h-full p-2 flex flex-col justify-between opacity-80 pointer-events-none">
-            <div className="h-3 w-full bg-[#232323] rounded flex items-center px-1.5 gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F5A524]" />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3ECF8E]" />
-              <span className="text-[9px] font-mono text-[#707070] ml-2 truncate">
-                https://shop.acme-demo.dev
-              </span>
-            </div>
-            <div className="flex-1 my-1.5 border border-dashed border-[#2E2E2E] rounded flex items-center justify-center">
-              <span className="text-[11px] font-mono text-[#707070]">
-                {loading ? "Streaming Chromium DOM Frame..." : "1280×800 Viewport Sandboxed"}
-              </span>
-            </div>
-            <div className="h-2 w-1/3 bg-[#232323] rounded" />
-          </div>
-        </div>
-      </div>
     </Panel>
   );
 }

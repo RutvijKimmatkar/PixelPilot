@@ -150,4 +150,45 @@ export class DebugController {
     results.sort((a, b) => a.port - b.port);
     return res.status(200).json({ success: true, servers: results });
   }
+
+  /**
+   * Proxies webpage HTML and strips X-Frame-Options & CSP so it can render safely in interactive canvas
+   * GET /api/proxy?url=...
+   */
+  static async proxy(req, res) {
+    try {
+      const targetUrl = req.query.url;
+      if (!targetUrl) {
+        return res.status(400).send('Missing url query parameter');
+      }
+
+      const response = await fetch(targetUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+      });
+
+      const contentType = response.headers.get('content-type') || 'text/html';
+      let html = await response.text();
+
+      // Ensure base URL is set so assets, stylesheets and images resolve correctly
+      const baseTag = `<base href="${targetUrl}">`;
+      if (html.includes('<head>')) {
+        html = html.replace('<head>', `<head>${baseTag}`);
+      } else if (html.includes('<html')) {
+        html = html.replace(/<html[^>]*>/, `$&<head>${baseTag}</head>`);
+      } else {
+        html = `${baseTag}${html}`;
+      }
+
+      res.setHeader('Content-Type', contentType);
+      res.removeHeader('X-Frame-Options');
+      res.removeHeader('Content-Security-Policy');
+      return res.status(200).send(html);
+    } catch (err) {
+      return res.status(502).send(`<!DOCTYPE html><html><body style="font-family:sans-serif;padding:24px;background:#FAF6EE;color:#181716;"><h3>Live Preview Error</h3><p>Could not load URL directly: ${err.message}</p></body></html>`);
+    }
+  }
 }
+

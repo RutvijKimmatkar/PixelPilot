@@ -27,6 +27,16 @@ export function errorHandler(err, _req, res, _next) {
     });
   }
 
+  if (err?.message?.includes('net::ERR_NAME_NOT_RESOLVED') || err?.message?.includes('net::ERR_CONNECTION_REFUSED')) {
+    return res.status(400).json({
+      error: {
+        code: 'WEBSITE_UNREACHABLE',
+        message: 'Could not resolve or connect to the target website. Please verify that the URL is correct and currently accessible.',
+      },
+    });
+  }
+
+
   // Unhandled / Unexpected server error
   console.error('[UNHANDLED_EXCEPTION]', err);
 

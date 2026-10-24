@@ -182,10 +182,14 @@ export function Screenshots({
                   onClick={() => onZoom(cap.imageUrl || DESKTOP_SHOT)}
                   className="p-2 rounded bg-[#F7F4EB] border border-[#DAD2C1] hover:border-[#181716] cursor-zoom-in transition-colors text-xs font-mono shadow-xs"
                 >
-                  <div className="h-20 bg-[#FAF6EE] rounded border border-[#E8E1D3] flex items-center justify-center text-[#181716] font-bold">
-                    {cap.width}×{cap.height}
+                  <div className="h-24 bg-[#FAF6EE] rounded border border-[#E8E1D3] overflow-hidden flex items-center justify-center text-[#181716] font-bold">
+                    {cap.imageUrl ? (
+                      <img src={cap.imageUrl} alt={cap.label} className="w-full h-full object-cover" />
+                    ) : (
+                      `${cap.width}×${cap.height}`
+                    )}
                   </div>
-                  <p className="mt-1 truncate text-[#181716] font-sans font-medium">{cap.label}</p>
+                  <p className="mt-1.5 truncate text-[#181716] font-sans font-medium">{cap.label}</p>
                 </div>
               ))}
             </div>

@@ -425,6 +425,8 @@ export function App() {
               setTimeout(() => setIsPreviewLoading(false), 300);
             }}
             previewError={previewError}
+            desktopShot={liveReport?.screenshots?.desktop}
+            mobileShot={liveReport?.screenshots?.mobile}
           />
         </div>
 

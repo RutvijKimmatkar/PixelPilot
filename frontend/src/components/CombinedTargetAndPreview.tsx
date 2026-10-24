@@ -60,6 +60,84 @@ interface CombinedTargetAndPreviewProps {
   isLoading: boolean;
   onReload: () => void;
   previewError: string | null;
+  desktopShot?: string;
+  mobileShot?: string;
+}
+
+function createSvgThumbnail(
+  region: SelectionRegion | null,
+  dims: { w: number; h: number },
+  url: string,
+  selector?: string
+): string {
+  const w = region?.width || dims.w;
+  const h = region?.height || dims.h;
+  let host = "target";
+  try {
+    host = new URL(url).hostname;
+  } catch {
+    // fallback
+  }
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240" fill="#FAF6EE">
+    <rect width="100%" height="100%" fill="#FAF6EE" stroke="#DAD2C1" stroke-width="2"/>
+    <rect x="20" y="20" width="360" height="200" rx="8" fill="#F7F4EB" stroke="#181716" stroke-dasharray="4 2"/>
+    <text x="35" y="60" font-family="monospace" font-size="14" font-weight="bold" fill="#181716">${host}</text>
+    <text x="35" y="90" font-family="monospace" font-size="12" fill="#3B4D66">${w}×${h}px ${region ? "Region Crop" : "Viewport"}</text>
+    ${selector ? `<text x="35" y="120" font-family="monospace" font-size="11" fill="#059669">${selector.slice(0, 35)}</text>` : ""}
+    <rect x="35" y="150" width="90" height="26" rx="4" fill="#181716"/>
+    <text x="46" y="167" font-family="sans-serif" font-size="11" font-weight="bold" fill="#FAF7F0">CAPTURED</text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function generateCropImage(
+  shot: string | undefined,
+  region: SelectionRegion | null,
+  dims: { w: number; h: number },
+  url: string,
+  selector?: string
+): Promise<string> {
+  return new Promise((resolve) => {
+    if (shot && region && region.width > 0 && region.height > 0) {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(20, region.width);
+          canvas.height = Math.max(20, region.height);
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            const scaleX = img.naturalWidth / dims.w;
+            const scaleY = img.naturalHeight / dims.h;
+            ctx.drawImage(
+              img,
+              region.x * scaleX,
+              region.y * scaleY,
+              region.width * scaleX,
+              region.height * scaleY,
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+            resolve(canvas.toDataURL("image/png"));
+            return;
+          }
+        } catch {
+          // fallback
+        }
+        resolve(createSvgThumbnail(region, dims, url, selector));
+      };
+      img.onerror = () => {
+        resolve(createSvgThumbnail(region, dims, url, selector));
+      };
+      img.src = shot;
+    } else {
+      resolve(createSvgThumbnail(region, dims, url, selector));
+    }
+  });
 }
 
 export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
@@ -71,12 +149,31 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
     rect: SelectionRegion;
   } | null>(null);
 
+  const [previewMode, setPreviewMode] = useState<"interactive" | "snapshot">("interactive");
+  const [useProxy, setUseProxy] = useState<boolean>(true);
+  const [reloadKey, setReloadKey] = useState<number>(0);
+
   // Target viewport pixel dimensions
   const dims = {
     desktop: { w: 1280, h: 800 },
     tablet: { w: 768, h: 1024 },
     mobile: { w: 375, h: 812 },
   }[props.viewport];
+
+  const isLocalhost =
+    props.previewUrl.startsWith("http://localhost") ||
+    props.previewUrl.startsWith("http://127.0.0.1") ||
+    props.previewUrl.startsWith("http://0.0.0.0");
+
+  const iframeSrc =
+    isLocalhost || !useProxy
+      ? props.previewUrl
+      : `http://localhost:5001/api/proxy?url=${encodeURIComponent(props.previewUrl)}`;
+
+  const activeSnapshot =
+    props.viewport === "mobile"
+      ? props.mobileShot || props.desktopShot
+      : props.desktopShot || props.mobileShot;
 
   // Dynamic label for primary button following test scope
   const runBtnLabel = {
@@ -148,7 +245,16 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
     }
   };
 
-  const handleCapture = () => {
+  const handleCapture = async () => {
+    const currentShot = props.viewport === "mobile" ? props.mobileShot : props.desktopShot;
+    const imgData = await generateCropImage(
+      currentShot,
+      props.region,
+      dims,
+      props.previewUrl,
+      props.pickedElement?.selector
+    );
+
     const newCap: CaptureItem = {
       id: `cap_${Date.now()}`,
       label:
@@ -157,7 +263,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
           : props.tool === "element" && props.pickedElement
           ? `Element: ${props.pickedElement.selector}`
           : `Full Viewport (${dims.w}px)`,
-      imageUrl: "",
+      imageUrl: imgData,
       width: props.region ? props.region.width : dims.w,
       height: props.region ? props.region.height : dims.h,
       timestamp: Date.now(),
@@ -168,6 +274,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
     };
     props.onAddCapture(newCap);
   };
+
 
   return (
     <div className="relative">
@@ -230,13 +337,31 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                     id="url-input"
                     type="url"
                     value={props.url}
-                    onChange={(e) => props.setUrl(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      let val = e.target.value.trim();
+                      const matches = val.match(/https?:\/\/[^\s]+/g);
+                      if (matches && matches.length > 1) {
+                        val = matches[matches.length - 1];
+                      }
+                      props.setUrl(val);
+                    }}
                     placeholder="https://my-site.dev"
                     aria-invalid={!!props.error}
-                    className={`w-full h-11 bg-[#F7F4EB] rounded-[6px] pl-10 pr-3 text-sm text-[#181716] font-mono placeholder:text-[#8E9FBA] border transition-colors focus:outline-none focus:border-[#181716] focus:ring-2 focus:ring-[rgba(10,25,47,0.15)] ${
+                    className={`w-full h-11 bg-[#F7F4EB] rounded-[6px] pl-10 pr-12 text-sm text-[#181716] font-mono placeholder:text-[#8E9FBA] border transition-colors focus:outline-none focus:border-[#181716] focus:ring-2 focus:ring-[rgba(10,25,47,0.15)] ${
                       props.error ? "border-[#DC2626]" : "border-[#DAD2C1]"
                     }`}
                   />
+                  {props.url && (
+                    <button
+                      type="button"
+                      onClick={() => props.setUrl("")}
+                      className="absolute right-3 top-3 text-[#6E7F99] hover:text-[#181716] text-xs font-bold px-1.5 py-0.5 rounded hover:bg-[#E8E1D3]"
+                      title="Clear URL"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
@@ -455,6 +580,35 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 <span className="w-2 h-2 rounded-full bg-[#059669] shadow-[0_0_8px_rgba(5,150,105,0.4)]" />
                 Live interactive canvas
               </span>
+
+              {/* View Mode: Live Web vs Playwright Snapshot */}
+              <div className="flex items-center bg-[#F2ECE0] rounded-[6px] border border-[#DAD2C1] p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("interactive")}
+                  className={`px-2.5 py-1 text-xs rounded-[4px] font-medium transition-all ${
+                    previewMode === "interactive"
+                      ? "bg-[#181716] text-[#FAF7F0] font-semibold shadow-sm"
+                      : "text-[#3B4D66] hover:text-[#181716]"
+                  }`}
+                >
+                  🌐 Live Web
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("snapshot")}
+                  className={`px-2.5 py-1 text-xs rounded-[4px] font-medium transition-all ${
+                    previewMode === "snapshot"
+                      ? "bg-[#181716] text-[#FAF7F0] font-semibold shadow-sm"
+                      : "text-[#3B4D66] hover:text-[#181716]"
+                  }`}
+                  title={activeSnapshot ? "View Playwright rendered snapshot" : "Run test to capture Playwright screenshot"}
+                >
+                  📸 Snapshot
+                </button>
+              </div>
+
+              {/* Viewport switch */}
               <div className="flex items-center bg-[#F2ECE0] rounded-[6px] border border-[#DAD2C1] p-0.5">
                 {(["desktop", "tablet", "mobile"] as const).map((vp) => (
                   <button
@@ -471,12 +625,46 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 ))}
               </div>
 
-              <Btn variant="ghost" size="md" onClick={props.onReload} title="Reload page">
+              {!isLocalhost && previewMode === "interactive" && (
+                <button
+                  type="button"
+                  onClick={() => setUseProxy(!useProxy)}
+                  className={`text-[11px] font-mono px-2 py-1 rounded-[4px] border transition-all ${
+                    useProxy
+                      ? "bg-[#FAF6EE] border-[#DAD2C1] text-[#059669] font-medium"
+                      : "bg-[#FAF6EE] border-[#DAD2C1] text-[#6E7F99]"
+                  }`}
+                  title="Toggle X-Frame-Options & CSP bypass proxy"
+                >
+                  Proxy: {useProxy ? "On" : "Direct"}
+                </button>
+              )}
+
+              <Btn
+                variant="ghost"
+                size="md"
+                onClick={() => {
+                  setReloadKey((k) => k + 1);
+                  props.onReload();
+                }}
+                title="Reload page"
+              >
                 <svg className="w-3.5 h-3.5 text-[#181716]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M23 4v6h-6M1 20v-6h6" />
                   <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                 </svg>
               </Btn>
+
+              <a
+                href={props.previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-[#6E7F99] hover:text-[#181716] p-1 font-mono flex items-center gap-0.5"
+                title="Open target in new tab"
+              >
+                <span>Open</span>
+                <span>↗</span>
+              </a>
             </div>
 
             {/* Interaction Tools */}
@@ -526,7 +714,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
           {/* Interactive Screen & Inspector */}
           <div className="flex flex-col lg:flex-row gap-5 items-start">
             {/* Viewport Frame */}
-            <div className="flex-1 w-full bg-[#F7F4EB] border border-[#DAD2C1] rounded-[8px] p-4 flex flex-col items-center justify-center min-h-[440px] overflow-hidden relative shadow-inner">
+            <div className="flex-1 w-full bg-[#F7F4EB] border border-[#DAD2C1] rounded-[8px] p-4 flex flex-col items-center justify-center min-h-[460px] overflow-hidden relative shadow-inner">
               {props.isLoading ? (
                 <div className="w-full space-y-4">
                   <Skeleton className="h-10 w-full" />
@@ -536,14 +724,14 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 <div
                   className={`relative transition-all duration-300 ${
                     props.viewport === "mobile"
-                      ? "w-[280px] rounded-[32px] border-[8px] border-[#181716] p-1 shadow-2xl bg-[#FAF6EE]"
+                      ? "w-[300px] h-[580px] rounded-[32px] border-[8px] border-[#181716] p-1 shadow-2xl bg-[#FAF6EE] flex flex-col"
                       : props.viewport === "tablet"
-                      ? "w-[500px] rounded-[16px] border-[6px] border-[#181716] p-1 shadow-xl bg-[#FAF6EE]"
-                      : "w-full max-w-[820px] rounded-[8px] border border-[#DAD2C1] bg-[#FAF6EE] shadow-sm"
+                      ? "w-[520px] h-[600px] rounded-[16px] border-[6px] border-[#181716] p-1 shadow-xl bg-[#FAF6EE] flex flex-col"
+                      : "w-full max-w-[840px] h-[520px] rounded-[8px] border border-[#DAD2C1] bg-[#FAF6EE] shadow-sm flex flex-col"
                   }`}
                 >
                   {props.viewport === "mobile" && (
-                    <div className="mx-auto w-12 h-1.5 rounded-full bg-[#282624] my-1" />
+                    <div className="mx-auto w-12 h-1.5 rounded-full bg-[#282624] my-1 shrink-0" />
                   )}
 
                   <div
@@ -552,7 +740,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onClick={handleClick}
-                    className={`relative select-none aspect-[16/10] overflow-hidden rounded-[4px] bg-[#FAF7F0] ${
+                    className={`relative select-none flex-1 w-full overflow-hidden rounded-[4px] bg-white ${
                       props.tool === "region"
                         ? "cursor-crosshair"
                         : props.tool === "element"
@@ -560,35 +748,29 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                         : "cursor-default"
                     }`}
                   >
-                    {/* Simulated live site DOM display */}
-                    <div className="w-full h-full bg-[#FAF7F0] p-4 text-[#181716] flex flex-col justify-between pointer-events-none">
-                      <header className="flex items-center justify-between border-b border-[#E8E1D3] pb-3">
-                        <div className="font-bold text-sm tracking-tight text-[#181716] flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-[#181716]" />
-                          Acme Shop Live
-                        </div>
-                        <div className="flex gap-3 text-xs text-[#3B4D66]">
-                          <span>Home</span>
-                          <span>Catalog</span>
-                          <span>Categories</span>
-                        </div>
-                      </header>
-                      <div className="my-auto p-4 rounded bg-[#FAF6EE] border border-[#DAD2C1] space-y-2 shadow-xs">
-                        <h3 className="font-semibold text-base text-[#181716]">
-                          Live Headless Preview
-                        </h3>
-                        <p className="text-xs text-[#3B4D66] font-mono truncate">
-                          {props.previewUrl}
-                        </p>
-                        <div className="h-7 w-32 bg-[#F2ECE0] border border-[#DAD2C1] rounded text-[11px] text-[#181716] font-semibold flex items-center justify-center">
-                          Active Sandbox
-                        </div>
+                    {/* View Mode: Interactive Iframe vs Playwright Snapshot */}
+                    {previewMode === "snapshot" && activeSnapshot ? (
+                      <div className="w-full h-full bg-[#FAF6EE] flex items-center justify-center overflow-hidden">
+                        <img
+                          src={activeSnapshot}
+                          alt="Playwright live snapshot"
+                          className="w-full h-full object-contain pointer-events-none select-none"
+                        />
                       </div>
-                      <footer className="text-[10px] text-[#6E7F99] pt-2 border-t border-[#E8E1D3] flex justify-between font-mono">
-                        <span>Viewport: {dims.w}×{dims.h}px</span>
-                        <span>Playwright Sandboxed</span>
-                      </footer>
-                    </div>
+                    ) : (
+                      <div className="w-full h-full relative bg-white overflow-hidden">
+                        <iframe
+                          key={`${props.previewUrl}-${reloadKey}-${useProxy}`}
+                          src={iframeSrc}
+                          title="Live Target Preview"
+                          className={`w-full h-full border-0 bg-white transition-opacity ${
+                            props.tool === "browse" ? "pointer-events-auto" : "pointer-events-none"
+                          }`}
+                          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                        />
+                      </div>
+                    )}
+
 
                     {/* SVG overlay for region and element highlights */}
                     <svg
@@ -825,11 +1007,19 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                   >
                     <div
                       onClick={() => props.onZoom(cap.imageUrl || "")}
-                      className="w-full h-20 bg-[#F7F4EB] rounded border border-[#E8E1D3] overflow-hidden flex items-center justify-center cursor-zoom-in"
+                      className="w-full h-20 bg-[#F7F4EB] rounded border border-[#E8E1D3] overflow-hidden flex items-center justify-center cursor-zoom-in relative"
                     >
-                      <span className="text-xs font-mono font-medium text-[#181716]">
-                        {cap.width}×{cap.height}
-                      </span>
+                      {cap.imageUrl ? (
+                        <img
+                          src={cap.imageUrl}
+                          alt={cap.label}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xs font-mono font-medium text-[#181716]">
+                          {cap.width}×{cap.height}
+                        </span>
+                      )}
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs">
                       <span className="truncate text-[#181716] font-semibold" title={cap.label}>

@@ -32,3 +32,7 @@ debugRouter.post(
   validateRequestBody(diagnoseVisualRequestSchema),
   DebugController.diagnoseVisual
 );
+
+// Proxy webpage HTML for live interactive preview canvas
+debugRouter.get('/proxy', DebugController.proxy);
+

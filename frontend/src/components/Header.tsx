@@ -15,57 +15,57 @@ export function TopBar({
 }) {
   const statusConfig = {
     idle: {
-      bg: "bg-[#232323] text-[#A0A0A0]",
+      bg: "bg-[#1C1B19] text-[#B8B2A7] border border-[#2A2825]",
       label: "Idle",
-      icon: <span className="w-2 h-2 rounded-full bg-[#707070]" />,
+      icon: <span className="w-2 h-2 rounded-full bg-[#7E776C]" />,
     },
     validation_error: {
-      bg: "bg-[rgba(239,68,68,0.14)] text-[#EF4444]",
+      bg: "bg-[rgba(239,68,68,0.14)] text-[#EF4444] border border-[rgba(239,68,68,0.3)]",
       label: "Invalid target",
       icon: <span className="text-xs">✕</span>,
     },
     running: {
-      bg: "bg-[rgba(62,207,142,0.10)] text-[#3ECF8E] border border-[#3ECF8E]",
+      bg: "bg-[rgba(250,247,240,0.08)] text-[#FAF8F5] border border-[rgba(250,247,240,0.25)] shadow-[0_0_12px_rgba(250,247,240,0.12)]",
       label: "Running",
-      icon: <Spinner className="w-3 h-3 text-[#3ECF8E]" />,
+      icon: <Spinner className="w-3 h-3 text-[#FAF7F0]" />,
     },
     whole_site_running: {
-      bg: "bg-[rgba(62,207,142,0.10)] text-[#3ECF8E] border border-[#3ECF8E]",
+      bg: "bg-[rgba(250,247,240,0.08)] text-[#FAF8F5] border border-[rgba(250,247,240,0.25)]",
       label: "Crawling site (Page 3/10)",
-      icon: <Spinner className="w-3 h-3 text-[#3ECF8E]" />,
+      icon: <Spinner className="w-3 h-3 text-[#FAF7F0]" />,
     },
     preview_area_selected: {
-      bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E]",
+      bg: "bg-[rgba(250,247,240,0.10)] text-[#FAF8F5] border border-[rgba(250,247,240,0.2)]",
       label: "Preview ready · Area selected",
-      icon: <span className="text-xs font-bold">⌖</span>,
+      icon: <span className="text-xs font-bold text-[#E7DCB9]">⌖</span>,
     },
     completed_issues: {
-      bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E]",
+      bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E] border border-[rgba(62,207,142,0.25)]",
       label: "Completed",
       icon: <span className="text-xs font-bold">✓</span>,
     },
     completed_clean: {
-      bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E]",
+      bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E] border border-[rgba(62,207,142,0.25)]",
       label: "Completed",
       icon: <span className="text-xs font-bold">✓</span>,
     },
     failed_blocked: {
-      bg: "bg-[rgba(239,68,68,0.14)] text-[#EF4444]",
+      bg: "bg-[rgba(239,68,68,0.14)] text-[#EF4444] border border-[rgba(239,68,68,0.3)]",
       label: "Failed",
       icon: <span className="text-xs font-bold">✕</span>,
     },
   }[state];
 
   return (
-    <header className="h-14 bg-[rgba(18,18,18,0.8)] backdrop-blur-[12px] border-b border-[#2E2E2E] sticky top-0 z-30">
+    <header className="h-14 bg-[rgba(15,14,13,0.85)] backdrop-blur-[12px] border-b border-[#2A2825] sticky top-0 z-30 shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)]">
       <div className="max-w-[1360px] mx-auto px-6 h-full flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-[6px] bg-[#3ECF8E] flex items-center justify-center text-[#121212] shadow-sm">
+          <div className="w-7 h-7 rounded-[7px] bg-[#FAF7F0] flex items-center justify-center text-[#141414] shadow-[0_2px_10px_rgba(250,247,240,0.25)] border border-[#E7DCB9]">
             <svg
               className="w-4 h-4"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#121212"
+              stroke="#141414"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -74,8 +74,11 @@ export function TopBar({
               <path d="M12 6V3M4 13h4M16 13h4M5 7l3 2M19 7l-3 2M5 19l3-2M19 19l-3-2" />
             </svg>
           </div>
-          <span className="font-medium text-sm text-[#EDEDED] tracking-tight">
+          <span className="font-medium text-sm text-[#FAF8F5] tracking-tight">
             Visual debugging assistant
+          </span>
+          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[rgba(250,247,240,0.06)] border border-[rgba(250,247,240,0.12)] text-[#E7DCB9]">
+            v1.0
           </span>
         </div>
 

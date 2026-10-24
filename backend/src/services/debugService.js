@@ -15,10 +15,11 @@ export class DebugService {
    * @param {function} [params.onProgress] - Callback for reporting live pipeline steps
    * @returns {Promise<object>} Complete visual diagnosis report with screenshots and evidence
    */
-  static async analyzeWebsite({ url, issueDescription, onProgress = () => {} }) {
+  static async analyzeWebsite({ url, issueDescription, mode = 'public', onProgress = () => {} }) {
     // Step 1: Validate URL & SSRF prevention
     onProgress({ step: 'validating_url', message: 'Validating website URL' });
-    const validatedUrl = validatePublicUrl(url);
+    const isLocalhost = mode === 'localhost' || url.includes('localhost') || url.includes('127.0.0.1');
+    const validatedUrl = validatePublicUrl(url, isLocalhost);
 
     // Step 2: Generate targeted inspection hints with AI
     onProgress({ step: 'planning_inspection', message: 'Planning layout inspection strategy' });

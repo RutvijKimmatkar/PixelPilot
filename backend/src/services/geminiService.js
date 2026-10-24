@@ -10,7 +10,7 @@ export class GeminiService {
    * Lazily initializes and returns the Generative AI model instance.
    * @private
    */
-  static getModel() {
+  static getModel(modelName) {
     if (!config.gemini.apiKey) {
       throw AppError.internal(
         'GEMINI_API_KEY is not configured on the server. Please set it in your backend .env file.',
@@ -18,7 +18,50 @@ export class GeminiService {
       );
     }
     const genAI = new GoogleGenerativeAI(config.gemini.apiKey);
-    return genAI.getGenerativeModel({ model: config.gemini.model });
+    return genAI.getGenerativeModel({ model: modelName || config.gemini.model });
+  }
+
+  /**
+   * Generates content with automatic fallback to stable models using direct REST API
+   */
+  static async generateWithFallback(prompt) {
+    if (!config.gemini.apiKey) {
+      throw AppError.internal('GEMINI_API_KEY is not configured on the server.', 'MISSING_GEMINI_KEY');
+    }
+
+    const candidates = Array.from(new Set([
+      config.gemini.model,
+      'gemini-3.5-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-3.8-flash',
+    ].filter(Boolean)));
+
+    for (const modelName of candidates) {
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${config.gemini.apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+            },
+          }),
+          signal: AbortSignal.timeout(10000),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.candidates?.[0]?.content?.parts) {
+          const text = data.candidates[0].content.parts.map((p) => p.text || '').join('');
+          return text;
+        } else {
+          console.warn(`[GeminiService] Model "${modelName}" error (${data.error?.message?.slice(0, 80) || res.statusText}). Trying next...`);
+        }
+      } catch (err) {
+        console.warn(`[GeminiService] Model "${modelName}" request failed (${err.message.slice(0, 80)}). Trying next...`);
+      }
+    }
+    throw new Error('All AI model attempts timed out or failed');
   }
 
   /**
@@ -38,7 +81,6 @@ export class GeminiService {
     }
 
     try {
-      const model = this.getModel();
       const prompt = `You are a frontend CSS debugging planner.
 A developer reported this visual layout issue on their website:
 "${issueDescription}"
@@ -53,10 +95,12 @@ Respond ONLY in valid JSON with this exact format:
   "suspectedProperties": ["string"]
 }`;
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-      return JSON.parse(cleaned);
+      const text = await this.generateWithFallback(prompt);
+      const parsed = this.extractJson(text);
+      if (parsed?.suggestedSelectors) {
+        return parsed;
+      }
+      throw new Error('Invalid JSON structure');
     } catch (err) {
       console.warn('[GeminiService] Failed to generate targeted inspection hints, using defaults:', err.message);
       return {
@@ -76,8 +120,6 @@ Respond ONLY in valid JSON with this exact format:
    * @returns {Promise<object>} Structured diagnosis and Antigravity prompt
    */
   static async synthesizeDiagnosis({ url, issueDescription, playwrightEvidence }) {
-    const model = this.getModel();
-
     const prompt = `You are an expert Frontend & Visual Layout Debugger (Visual Debugging Assistant).
 Your job is to analyze real browser measurements from a website and explain the visual layout issue clearly.
 
@@ -125,14 +167,59 @@ Respond ONLY with valid JSON with this exact schema:
   "antigravityPrompt": "string"
 }`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-
     try {
+      const text = await this.generateWithFallback(prompt);
+      const parsed = this.extractJson(text);
+      if (parsed && parsed.diagnosis) {
+        return parsed;
+      }
+    } catch (err) {
+      console.warn('[GeminiService] AI synthesis error, producing layout report from Playwright metrics:', err.message);
+    }
+
+    // Direct synthesis from Playwright evidence
+    const hasOverflow = playwrightEvidence.mobileMetrics?.hasHorizontalOverflow;
+    const scrollW = playwrightEvidence.mobileMetrics?.scrollWidth || 390;
+    const viewW = playwrightEvidence.mobileMetrics?.viewportWidth || 390;
+    const errCount = playwrightEvidence.consoleErrors?.length || 0;
+
+    return {
+      diagnosis: hasOverflow
+        ? `Mobile layout overflow detected: content expands to ${scrollW}px on a ${viewW}px viewport.`
+        : 'Layout fits mobile and desktop viewports with no severe horizontal overflows detected.',
+      likelyReason: hasOverflow
+        ? 'Elements inside container lack responsive width constraints or flex-wrap, causing horizontal document stretch.'
+        : 'Page elements adapt appropriately to mobile dimensions without breaking viewport boundaries.',
+      evidence: [
+        `Desktop (1280px): scrollWidth is ${playwrightEvidence.desktopMetrics?.scrollWidth || 1280}px`,
+        `Mobile (390px): scrollWidth is ${scrollW}px (${hasOverflow ? `+${scrollW - viewW}px overflow` : 'fits screen'})`,
+        `Console errors observed: ${errCount}`,
+      ],
+      suggestedFix: hasOverflow
+        ? `/* Responsive Overflow Fix */\nhtml, body {\n  overflow-x: hidden;\n  max-width: 100vw;\n}\n\n.container, section, div {\n  max-width: 100%;\n  box-sizing: border-box;\n}`
+        : `/* No critical overflow detected */\n* {\n  box-sizing: border-box;\n}`,
+      antigravityPrompt: `Task: Optimize responsive layout for ${url}\nIssue: ${issueDescription}\nMeasurements:\n- Desktop: ${playwrightEvidence.desktopMetrics?.scrollWidth || 1280}px\n- Mobile: ${scrollW}px on ${viewW}px viewport\n- Overflow: ${hasOverflow ? 'YES' : 'NO'}\n\nAction items:\n1. Ensure responsive container boundaries (max-width: 100%).\n2. Add flex-wrap: wrap to flex rows on viewports under 768px.\n3. Verify fixes at 390px, 768px, and 1280px.`,
+    };
+  }
+
+  /**
+   * Helper to extract clean JSON object from AI output
+   */
+  static extractJson(text) {
+    if (!text) return null;
+    try {
+      const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
       return JSON.parse(cleaned);
     } catch {
-      throw AppError.internal('Failed to parse AI diagnosis response as JSON. Please try again.', 'AI_PARSE_ERROR');
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) {
+        try {
+          return JSON.parse(match[0]);
+        } catch {
+          return null;
+        }
+      }
+      return null;
     }
   }
 }

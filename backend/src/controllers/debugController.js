@@ -7,11 +7,13 @@ export class DebugController {
    */
   static async analyze(req, res, next) {
     try {
-      const { url, issueDescription } = req.body;
+      const { url, issueDescription, description, mode } = req.body;
+      const desc = issueDescription || description;
 
       const report = await DebugService.analyzeWebsite({
         url,
-        issueDescription,
+        issueDescription: desc,
+        mode: mode || 'public',
       });
 
       return res.status(200).json({
@@ -78,5 +80,42 @@ export class DebugController {
       service: 'visual-debugging-assistant-backend',
       timestamp: new Date().toISOString(),
     });
+  }
+
+  /**
+   * Detect running local dev servers on common developer ports
+   * GET /api/local/detect
+   */
+  static async detectLocalServers(_req, res) {
+    const net = await import('net');
+    const portsToProbe = [5173, 5174, 3000, 3001, 4200, 8000, 8080];
+    const results = [];
+
+    await Promise.all(
+      portsToProbe.map((port) => {
+        return new Promise((resolve) => {
+          const socket = new net.Socket();
+          socket.setTimeout(250);
+          socket.on('connect', () => {
+            results.push({
+              port,
+              url: `http://localhost:${port}`,
+              title: port === 5173 ? 'Vite Frontend (Active)' : `Local Server :${port}`,
+            });
+            socket.destroy();
+            resolve();
+          });
+          socket.on('error', () => resolve());
+          socket.on('timeout', () => {
+            socket.destroy();
+            resolve();
+          });
+          socket.connect(port, '127.0.0.1');
+        });
+      })
+    );
+
+    results.sort((a, b) => a.port - b.port);
+    return res.status(200).json({ success: true, servers: results });
   }
 }

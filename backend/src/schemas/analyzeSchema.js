@@ -11,4 +11,5 @@ export const analyzeRequestSchema = z.object({
     .trim()
     .min(3, 'Issue description must be at least 3 characters long')
     .max(1000, 'Issue description cannot exceed 1000 characters'),
+  mode: z.enum(['public', 'localhost']).optional().default('public'),
 });

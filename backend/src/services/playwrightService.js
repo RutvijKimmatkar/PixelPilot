@@ -10,7 +10,7 @@ export class PlaywrightService {
    * Run desktop and mobile inspections on the target URL.
    *
    * @param {string} url - Validated public website URL
-   * @param {object} [targetedPlan] - Optional hints from Gemma for elements to inspect
+   * @param {object} [targetedPlan] - Optional hints from AI for elements to inspect
    * @param {function} [onProgress] - Optional callback for reporting step progress
    * @returns {Promise<object>} Collected layout evidence and screenshots
    */
@@ -52,6 +52,7 @@ export class PlaywrightService {
         timeout: config.playwright.timeoutMs,
       });
 
+      // Allow animations and fonts to settle briefly
       await desktopPage.waitForTimeout(1000);
 
       const desktopScreenshotBuffer = await desktopPage.screenshot({

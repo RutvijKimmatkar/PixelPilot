@@ -31,8 +31,8 @@ export class GeminiService {
 
     const candidates = Array.from(new Set([
       config.gemini.model,
+      'gemma-4-26b-a4b-it',
       'gemini-3.5-flash-lite',
-      'gemini-3.5-flash',
       'gemini-3.8-flash',
     ].filter(Boolean)));
 
@@ -268,17 +268,23 @@ Respond ONLY with valid JSON with this exact schema:
   static extractJson(text) {
     if (!text) return null;
     try {
-      const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-      return JSON.parse(cleaned);
-    } catch {
-      const match = text.match(/\{[\s\S]*\}/);
-      if (match) {
+      // 1. Try markdown code block
+      const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+      if (codeBlockMatch) {
         try {
-          return JSON.parse(match[0]);
-        } catch {
-          return null;
-        }
+          return JSON.parse(codeBlockMatch[1].trim());
+        } catch {}
       }
+      // 2. Try outermost JSON object
+      const firstBrace = text.indexOf('{');
+      const lastBrace = text.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        try {
+          return JSON.parse(text.slice(firstBrace, lastBrace + 1));
+        } catch {}
+      }
+      return JSON.parse(text);
+    } catch {
       return null;
     }
   }

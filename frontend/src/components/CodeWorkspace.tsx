@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Panel, Btn } from "./ui";
+import { Panel } from "./ui";
 import {
   PLAYWRIGHT_SCRIPT_CODE,
   SUGGESTED_FIX_CODE,
@@ -30,7 +30,6 @@ export function CodeWorkspace({
 
   const currentTab = tabs.find((t) => t.id === activeTab)!;
 
-  // Generate scope-aware code for the Playwright script
   const getScriptCode = () => {
     if (scope === "site") {
       return `import { test, expect, chromium } from '@playwright/test';
@@ -134,7 +133,6 @@ test('inspect target element subtree', async () => {
     return PLAYWRIGHT_SCRIPT_CODE;
   };
 
-  // Generate scope-aware Antigravity AI prompt
   const getPromptCode = () => {
     if (scope === "region" && region) {
       return `Fix layout bug inside bounded region (x: ${region.x}, y: ${region.y}, ${region.width}×${region.height}px) on https://shop.acme-demo.dev.
@@ -199,14 +197,13 @@ Instructions:
     );
   };
 
-  // Syntax highlighting helper for CSS/TS/Prompt
   const renderHighlightedLine = (line: string) => {
     if (activeTab === "prompt") {
       return <span>{line}</span>;
     }
 
     if (line.trim().startsWith("//") || line.trim().startsWith("/*") || line.trim().startsWith("*")) {
-      return <span style={{ color: "#707070" }}>{line}</span>;
+      return <span style={{ color: "#738CA8" }}>{line}</span>;
     }
 
     const parts = line.split(
@@ -236,14 +233,14 @@ Instructions:
           }
           if (/^('.*'|".*"|`.*`)$/.test(p)) {
             return (
-              <span key={idx} style={{ color: "#3ECF8E" }}>
+              <span key={idx} style={{ color: "#34D399" }}>
                 {p}
               </span>
             );
           }
           if (/^(\d+px|\d+ms|\d+)$/.test(p)) {
             return (
-              <span key={idx} style={{ color: "#F5A524" }}>
+              <span key={idx} style={{ color: "#FBBF24" }}>
                 {p}
               </span>
             );
@@ -263,10 +260,10 @@ Instructions:
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`text-sm pb-1 transition-all border-b-2 font-medium ${
+              className={`text-sm pb-1 transition-all border-b-2 font-semibold ${
                 activeTab === t.id
-                  ? "border-[#FAF7F0] text-[#FAF8F5] drop-shadow-[0_1px_4px_rgba(250,247,240,0.2)]"
-                  : "border-transparent text-[#B8B2A7] hover:text-[#FAF8F5]"
+                  ? "border-[#0A192F] text-[#0A192F]"
+                  : "border-transparent text-[#6E7F99] hover:text-[#0A192F]"
               }`}
             >
               {t.label}
@@ -275,24 +272,28 @@ Instructions:
         </div>
       }
     >
-      <div className="rounded-[8px] border border-[#2A2825] bg-[#141312] overflow-hidden shadow-[inset_0_1px_0_0_rgba(253,248,241,0.05)]">
-        <div className="h-10 px-4 bg-[#1C1B19] border-b border-[#2A2825] flex items-center justify-between text-xs">
-          <div className="flex items-center gap-3 font-mono text-[#B8B2A7]">
-            <span className="text-[#3ECF8E]">●</span>
-            <span className="text-[#FAF8F5] font-medium">{currentTab.filename}</span>
-            <span className="text-[#8C8578]">({scope} scope)</span>
-            <span className="text-[#7E776C]">{lines.length} lines</span>
+      <div className="rounded-[8px] border border-[#0A192F] bg-[#071527] overflow-hidden shadow-md">
+        <div className="h-10 px-4 bg-[#0A192F] border-b border-[#172A45] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-3 font-mono text-[#D0DDF0]">
+            <span className="text-[#34D399]">●</span>
+            <span className="text-[#FAF7F0] font-semibold">{currentTab.filename}</span>
+            <span className="text-[#93C5FD]">({scope} scope)</span>
+            <span className="text-[#8E9FBA]">{lines.length} lines</span>
           </div>
-          <Btn variant="secondary" size="md" onClick={handleCopy}>
-            <svg className="w-3.5 h-3.5 mr-1 text-[#E7DCB9]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-[5px] bg-[#FAF7F0] text-[#0A192F] hover:bg-[#FFFFFF] font-semibold text-xs transition-colors shadow-xs"
+          >
+            <svg className="w-3.5 h-3.5 text-[#0A192F]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            <span className="text-[#FAF8F5]">{activeTab === "prompt" ? "Copy prompt" : "Copy code"}</span>
-          </Btn>
+            <span>{activeTab === "prompt" ? "Copy prompt" : "Copy code"}</span>
+          </button>
         </div>
 
-        <div className="p-4 overflow-x-auto text-[13px] leading-[22px] font-mono bg-[#141312] max-h-[380px]">
+        <div className="p-4 overflow-x-auto text-[13px] leading-[22px] font-mono bg-[#071527] max-h-[380px]">
           {lines.map((line, i) => (
             <div
               key={i}
@@ -300,10 +301,10 @@ Instructions:
                 activeTab === "prompt" ? "whitespace-pre-wrap" : "whitespace-pre"
               }`}
             >
-              <span className="w-10 text-right pr-4 text-[#5E584D] select-none flex-shrink-0">
+              <span className="w-10 text-right pr-4 text-[#476085] select-none flex-shrink-0">
                 {i + 1}
               </span>
-              <span className="text-[#FAF8F5]">{renderHighlightedLine(line)}</span>
+              <span className="text-[#FAF7F0]">{renderHighlightedLine(line)}</span>
             </div>
           ))}
         </div>

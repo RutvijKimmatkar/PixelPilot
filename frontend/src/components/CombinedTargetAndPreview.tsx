@@ -171,37 +171,27 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
 
   return (
     <div className="relative">
-      {/* Subtle radial warm cream & emerald atmosphere glow */}
-      <div
-        className="absolute -top-12 left-1/2 -translate-x-1/2 w-[90%] h-48 pointer-events-none rounded-full blur-2xl"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 0%, rgba(250,247,240,0.08) 0%, rgba(62,207,142,0.12) 40%, rgba(15,14,13,0) 70%)",
-        }}
-        aria-hidden="true"
-      />
-
-      <section className="relative bg-[#161514] border border-[#2A2825] rounded-[12px] p-6 hover:border-[#36332E] transition-all space-y-6 shadow-[inset_0_1px_0_0_rgba(253,248,241,0.05),0_8px_24px_rgba(0,0,0,0.4)]">
+      <section className="relative bg-[#FFFFFF] border border-[#E8E1D3] rounded-[12px] p-6 hover:border-[#DAD2C1] transition-all space-y-6 shadow-[0_2px_12px_rgba(10,25,47,0.04)]">
         {/* HEADER & TARGET MODE */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-[28px] sm:text-[32px] leading-tight font-medium tracking-tight text-[#FAF8F5]">
+            <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold tracking-tight text-[#0A192F]">
               Test & Preview Live Page
             </h1>
-            <p className="text-sm text-[#B8B2A7] mt-1 max-w-2xl">
+            <p className="text-sm text-[#3B4D66] mt-1 max-w-2xl">
               Inspect your target live, interact or select regions, and run automated Playwright testing.
             </p>
           </div>
 
           {/* Mode Switch: Public URL | Localhost */}
-          <div className="flex items-center p-1 bg-[#141312] rounded-[8px] border border-[#2A2825]">
+          <div className="flex items-center p-1 bg-[#F2ECE0] rounded-[8px] border border-[#DAD2C1]">
             <button
               type="button"
               onClick={() => props.setMode("public")}
               className={`px-3 py-1.5 text-xs font-semibold rounded-[6px] transition-all ${
                 props.mode === "public"
-                  ? "bg-[#FAF7F0] text-[#141414] border border-[#FAF7F0] shadow-[0_1px_6px_rgba(250,247,240,0.2)]"
-                  : "text-[#B8B2A7] hover:text-[#FAF8F5]"
+                  ? "bg-[#0A192F] text-[#FAF7F0] shadow-sm"
+                  : "text-[#3B4D66] hover:text-[#0A192F]"
               }`}
             >
               Public URL
@@ -211,8 +201,8 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
               onClick={() => props.setMode("localhost")}
               className={`px-3 py-1.5 text-xs font-semibold rounded-[6px] transition-all ${
                 props.mode === "localhost"
-                  ? "bg-[#FAF7F0] text-[#141414] border border-[#FAF7F0] shadow-[0_1px_6px_rgba(250,247,240,0.2)]"
-                  : "text-[#B8B2A7] hover:text-[#FAF8F5]"
+                  ? "bg-[#0A192F] text-[#FAF7F0] shadow-sm"
+                  : "text-[#3B4D66] hover:text-[#0A192F]"
               }`}
             >
               Localhost
@@ -226,11 +216,11 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
           <div className="lg:col-span-5 min-w-0">
             {props.mode === "public" ? (
               <div>
-                <label htmlFor="url-input" className="block text-xs text-[#B8B2A7] mb-1.5 font-medium">
+                <label htmlFor="url-input" className="block text-xs text-[#3B4D66] mb-1.5 font-medium">
                   Page URL
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-3.5 text-[#7E776C] pointer-events-none">
+                  <span className="absolute left-3.5 top-3.5 text-[#6E7F99] pointer-events-none">
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                       <circle cx="12" cy="12" r="10" />
                       <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
@@ -243,8 +233,8 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                     onChange={(e) => props.setUrl(e.target.value)}
                     placeholder="https://my-site.dev"
                     aria-invalid={!!props.error}
-                    className={`w-full h-11 bg-[#141312] rounded-[6px] pl-10 pr-3 text-sm text-[#FAF8F5] font-mono placeholder:text-[#6E685C] border transition-colors focus:outline-none focus:border-[#FAF7F0] focus:ring-2 focus:ring-[rgba(250,247,240,0.15)] ${
-                      props.error ? "border-[#EF4444]" : "border-[#2A2825]"
+                    className={`w-full h-11 bg-[#F7F4EB] rounded-[6px] pl-10 pr-3 text-sm text-[#0A192F] font-mono placeholder:text-[#8E9FBA] border transition-colors focus:outline-none focus:border-[#0A192F] focus:ring-2 focus:ring-[rgba(10,25,47,0.15)] ${
+                      props.error ? "border-[#DC2626]" : "border-[#DAD2C1]"
                     }`}
                   />
                 </div>
@@ -252,21 +242,21 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
             ) : (
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="localhost-port" className="block text-xs text-[#B8B2A7] font-medium">
+                  <label htmlFor="localhost-port" className="block text-xs text-[#3B4D66] font-medium">
                     Localhost Target
                   </label>
                   <button
                     type="button"
                     onClick={props.onDetectLocal}
                     disabled={props.detectingServers}
-                    className="text-xs text-[#E7DCB9] hover:underline flex items-center gap-1 font-mono"
+                    className="text-xs text-[#0A192F] font-semibold hover:underline flex items-center gap-1 font-mono"
                   >
-                    {props.detectingServers ? <Spinner className="w-3 h-3 text-[#FAF7F0]" /> : "⚡"}
+                    {props.detectingServers ? <Spinner className="w-3 h-3 text-[#0A192F]" /> : "⚡"}
                     Detect apps
                   </button>
                 </div>
-                <div className="flex items-center h-11 bg-[#141312] rounded-[6px] border border-[#2A2825] px-3 font-mono text-sm">
-                  <span className="text-[#8C8578] select-none">http://localhost:</span>
+                <div className="flex items-center h-11 bg-[#F7F4EB] rounded-[6px] border border-[#DAD2C1] px-3 font-mono text-sm">
+                  <span className="text-[#6E7F99] select-none">http://localhost:</span>
                   <input
                     id="localhost-port"
                     type="number"
@@ -275,21 +265,21 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                     value={props.port}
                     onChange={(e) => props.setPort(e.target.value)}
                     placeholder="5173"
-                    className="w-16 bg-transparent text-[#FAF8F5] focus:outline-none px-1"
+                    className="w-16 bg-transparent text-[#0A192F] focus:outline-none px-1"
                   />
-                  <span className="text-[#5E584D]">/</span>
+                  <span className="text-[#8E9FBA]">/</span>
                   <input
                     type="text"
                     value={props.path}
                     onChange={(e) => props.setPath(e.target.value)}
                     placeholder="path (optional)"
-                    className="flex-1 bg-transparent text-[#FAF8F5] focus:outline-none px-1 text-xs"
+                    className="flex-1 bg-transparent text-[#0A192F] focus:outline-none px-1 text-xs"
                   />
                 </div>
 
                 {props.detectedServers.length > 0 && (
                   <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                    <span className="text-[11px] text-[#7E776C]">Detected:</span>
+                    <span className="text-[11px] text-[#6E7F99]">Detected:</span>
                     {props.detectedServers.map((srv) => (
                       <button
                         key={srv.port}
@@ -298,7 +288,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                           props.setPort(String(srv.port));
                           props.setPath("");
                         }}
-                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#1C1B19] border border-[#2A2825] text-[#FAF8F5] hover:border-[#FAF7F0]"
+                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#FFFFFF] border border-[#DAD2C1] text-[#0A192F] hover:border-[#0A192F]"
                       >
                         localhost:{srv.port} ({srv.title})
                       </button>
@@ -309,7 +299,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
             )}
 
             {props.error && (
-              <p id="url-error" className="text-xs text-[#EF4444] mt-1.5 flex items-center gap-1.5">
+              <p id="url-error" className="text-xs text-[#DC2626] mt-1.5 flex items-center gap-1.5">
                 <span>✕</span> {props.error}
               </p>
             )}
@@ -317,7 +307,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
 
           {/* Description */}
           <div className="lg:col-span-4 min-w-0">
-            <label htmlFor="desc-input" className="block text-xs text-[#B8B2A7] mb-1.5 font-medium">
+            <label htmlFor="desc-input" className="block text-xs text-[#3B4D66] mb-1.5 font-medium">
               What looks wrong?
             </label>
             <input
@@ -326,7 +316,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
               value={props.desc}
               onChange={(e) => props.setDesc(e.target.value)}
               placeholder="Navbar overflows on mobile and scrolls sideways"
-              className="w-full h-11 bg-[#141312] rounded-[6px] px-3.5 text-sm text-[#FAF8F5] placeholder:text-[#6E685C] border border-[#2A2825] transition-colors focus:outline-none focus:border-[#FAF7F0] focus:ring-2 focus:ring-[rgba(250,247,240,0.15)]"
+              className="w-full h-11 bg-[#F7F4EB] rounded-[6px] px-3.5 text-sm text-[#0A192F] placeholder:text-[#8E9FBA] border border-[#DAD2C1] transition-colors focus:outline-none focus:border-[#0A192F] focus:ring-2 focus:ring-[rgba(10,25,47,0.15)]"
             />
           </div>
 
@@ -343,7 +333,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
               >
                 {props.running ? (
                   <>
-                    <Spinner className="w-4 h-4 text-[#141414]" />
+                    <Spinner className="w-4 h-4 text-[#FAF7F0]" />
                     Testing...
                   </>
                 ) : (
@@ -356,7 +346,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 )}
               </Btn>
               {props.disabledReason && !props.canRun && (
-                <div className="absolute right-0 top-full mt-1.5 hidden group-hover:block bg-[#1C1B19] border border-[#2A2825] text-[11px] text-[#B8B2A7] px-2.5 py-1 rounded shadow-lg whitespace-nowrap z-30">
+                <div className="absolute right-0 top-full mt-1.5 hidden group-hover:block bg-[#0A192F] border border-[#172A45] text-[11px] text-[#FAF7F0] px-2.5 py-1 rounded shadow-lg whitespace-nowrap z-30">
                   {props.disabledReason}
                 </div>
               )}
@@ -371,9 +361,9 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
         </div>
 
         {/* SCOPE & VIEWPORT BAR */}
-        <div className="p-3.5 rounded-[8px] bg-[#141312] border border-[#2A2825] flex flex-wrap items-center justify-between gap-3 shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)]">
+        <div className="p-3.5 rounded-[8px] bg-[#F7F4EB] border border-[#E8E1D3] flex flex-wrap items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-[#8C8578] font-medium">Test scope:</span>
+            <span className="text-xs text-[#3B4D66] font-medium">Test scope:</span>
             <div className="flex items-center gap-1">
               {(
                 [
@@ -394,8 +384,8 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                   }}
                   className={`px-2.5 py-1 text-xs rounded-[6px] transition-all font-medium ${
                     props.scope === sKey
-                      ? "bg-[#FAF7F0] text-[#141414] border border-[#FAF7F0] shadow-sm font-semibold"
-                      : "text-[#B8B2A7] hover:bg-[#1C1B19] hover:text-[#FAF8F5]"
+                      ? "bg-[#0A192F] text-[#FAF7F0] shadow-sm font-semibold"
+                      : "text-[#3B4D66] hover:bg-[#F2ECE0] hover:text-[#0A192F]"
                   }`}
                 >
                   {sLabel}
@@ -404,21 +394,21 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
             </div>
 
             {props.scope === "site" && (
-              <div className="flex items-center gap-1.5 text-xs text-[#B8B2A7] ml-2">
+              <div className="flex items-center gap-1.5 text-xs text-[#3B4D66] ml-2">
                 <span>Max pages:</span>
-                <div className="flex items-center border border-[#36332E] rounded-[6px] overflow-hidden bg-[#0F0E0D]">
+                <div className="flex items-center border border-[#DAD2C1] rounded-[6px] overflow-hidden bg-[#FFFFFF]">
                   <button
                     type="button"
                     onClick={() => props.setMaxPages(Math.max(1, props.maxPages - 1))}
-                    className="px-2 py-0.5 hover:bg-[#1C1B19] text-[#FAF8F5]"
+                    className="px-2 py-0.5 hover:bg-[#F2ECE0] text-[#0A192F]"
                   >
                     -
                   </button>
-                  <span className="px-2 font-mono text-[#FAF8F5]">{props.maxPages}</span>
+                  <span className="px-2 font-mono text-[#0A192F]">{props.maxPages}</span>
                   <button
                     type="button"
                     onClick={() => props.setMaxPages(Math.min(25, props.maxPages + 1))}
-                    className="px-2 py-0.5 hover:bg-[#1C1B19] text-[#FAF8F5]"
+                    className="px-2 py-0.5 hover:bg-[#F2ECE0] text-[#0A192F]"
                   >
                     +
                   </button>
@@ -431,7 +421,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
             <Btn id="sample-btn" variant="ghost" onClick={props.onSample}>
               Use sample bug
             </Btn>
-            <div className="h-4 w-px bg-[#2A2825]" />
+            <div className="h-4 w-px bg-[#DAD2C1]" />
             <Chip
               id="vp-desktop"
               on={props.vp.desktop}
@@ -457,23 +447,23 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
         </div>
 
         {/* LIVE PREVIEW INTEGRATED CANVAS & TOOLBAR */}
-        <div className="pt-2 border-t border-[#2A2825] space-y-4">
+        <div className="pt-2 border-t border-[#E8E1D3] space-y-4">
           {/* Preview Toolbar */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-[#FAF8F5] font-medium flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#3ECF8E] shadow-[0_0_8px_rgba(62,207,142,0.4)]" />
+              <span className="text-xs text-[#0A192F] font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#059669] shadow-[0_0_8px_rgba(5,150,105,0.4)]" />
                 Live interactive canvas
               </span>
-              <div className="flex items-center bg-[#141312] rounded-[6px] border border-[#2A2825] p-0.5">
+              <div className="flex items-center bg-[#F2ECE0] rounded-[6px] border border-[#DAD2C1] p-0.5">
                 {(["desktop", "tablet", "mobile"] as const).map((vp) => (
                   <button
                     key={vp}
                     onClick={() => props.setViewport(vp)}
                     className={`px-2.5 py-1 text-xs rounded-[4px] capitalize transition-all ${
                       props.viewport === vp
-                        ? "bg-[#FAF7F0] text-[#141414] font-semibold shadow-sm"
-                        : "text-[#B8B2A7] hover:text-[#FAF8F5]"
+                        ? "bg-[#0A192F] text-[#FAF7F0] font-semibold shadow-sm"
+                        : "text-[#3B4D66] hover:text-[#0A192F]"
                     }`}
                   >
                     {vp}
@@ -482,7 +472,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
               </div>
 
               <Btn variant="ghost" size="md" onClick={props.onReload} title="Reload page">
-                <svg className="w-3.5 h-3.5 text-[#E7DCB9]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className="w-3.5 h-3.5 text-[#0A192F]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M23 4v6h-6M1 20v-6h6" />
                   <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                 </svg>
@@ -491,14 +481,14 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
 
             {/* Interaction Tools */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#8C8578]">Tool:</span>
-              <div className="flex items-center bg-[#141312] rounded-[6px] border border-[#2A2825] p-0.5">
+              <span className="text-xs text-[#6E7F99]">Tool:</span>
+              <div className="flex items-center bg-[#F2ECE0] rounded-[6px] border border-[#DAD2C1] p-0.5">
                 <button
                   onClick={() => props.setTool("browse")}
                   className={`px-3 py-1 text-xs rounded-[4px] flex items-center gap-1.5 transition-all ${
                     props.tool === "browse"
-                      ? "bg-[#FAF7F0] text-[#141414] font-semibold border border-[#FAF7F0] shadow-sm"
-                      : "text-[#B8B2A7] hover:text-[#FAF8F5]"
+                      ? "bg-[#0A192F] text-[#FAF7F0] font-semibold shadow-sm"
+                      : "text-[#3B4D66] hover:text-[#0A192F]"
                   }`}
                 >
                   <span>✋</span> Browse
@@ -510,8 +500,8 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                   }}
                   className={`px-3 py-1 text-xs rounded-[4px] flex items-center gap-1.5 transition-all ${
                     props.tool === "region"
-                      ? "bg-[#FAF7F0] text-[#141414] font-semibold border border-[#FAF7F0] shadow-sm"
-                      : "text-[#B8B2A7] hover:text-[#FAF8F5]"
+                      ? "bg-[#0A192F] text-[#FAF7F0] font-semibold shadow-sm"
+                      : "text-[#3B4D66] hover:text-[#0A192F]"
                   }`}
                 >
                   <span>⌖</span> Select area
@@ -523,8 +513,8 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                   }}
                   className={`px-3 py-1 text-xs rounded-[4px] flex items-center gap-1.5 transition-all ${
                     props.tool === "element"
-                      ? "bg-[#FAF7F0] text-[#141414] font-semibold border border-[#FAF7F0] shadow-sm"
-                      : "text-[#B8B2A7] hover:text-[#FAF8F5]"
+                      ? "bg-[#0A192F] text-[#FAF7F0] font-semibold shadow-sm"
+                      : "text-[#3B4D66] hover:text-[#0A192F]"
                   }`}
                 >
                   <span>↖</span> Pick element
@@ -536,7 +526,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
           {/* Interactive Screen & Inspector */}
           <div className="flex flex-col lg:flex-row gap-5 items-start">
             {/* Viewport Frame */}
-            <div className="flex-1 w-full bg-[#0F0E0D] border border-[#2A2825] rounded-[8px] p-4 flex flex-col items-center justify-center min-h-[440px] overflow-hidden relative shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)]">
+            <div className="flex-1 w-full bg-[#F7F4EB] border border-[#DAD2C1] rounded-[8px] p-4 flex flex-col items-center justify-center min-h-[440px] overflow-hidden relative shadow-inner">
               {props.isLoading ? (
                 <div className="w-full space-y-4">
                   <Skeleton className="h-10 w-full" />
@@ -546,14 +536,14 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 <div
                   className={`relative transition-all duration-300 ${
                     props.viewport === "mobile"
-                      ? "w-[280px] rounded-[32px] border-[8px] border-[#1C1B19] p-1 shadow-2xl bg-[#141312]"
+                      ? "w-[280px] rounded-[32px] border-[8px] border-[#0A192F] p-1 shadow-2xl bg-[#FFFFFF]"
                       : props.viewport === "tablet"
-                      ? "w-[500px] rounded-[16px] border-[6px] border-[#1C1B19] p-1 shadow-xl bg-[#141312]"
-                      : "w-full max-w-[820px] rounded-[8px] border border-[#2A2825] bg-[#141312]"
+                      ? "w-[500px] rounded-[16px] border-[6px] border-[#0A192F] p-1 shadow-xl bg-[#FFFFFF]"
+                      : "w-full max-w-[820px] rounded-[8px] border border-[#DAD2C1] bg-[#FFFFFF] shadow-sm"
                   }`}
                 >
                   {props.viewport === "mobile" && (
-                    <div className="mx-auto w-12 h-1.5 rounded-full bg-[#24221F] my-1" />
+                    <div className="mx-auto w-12 h-1.5 rounded-full bg-[#172A45] my-1" />
                   )}
 
                   <div
@@ -562,7 +552,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onClick={handleClick}
-                    className={`relative select-none aspect-[16/10] overflow-hidden rounded-[4px] ${
+                    className={`relative select-none aspect-[16/10] overflow-hidden rounded-[4px] bg-[#FAF7F0] ${
                       props.tool === "region"
                         ? "cursor-crosshair"
                         : props.tool === "element"
@@ -571,30 +561,30 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                     }`}
                   >
                     {/* Simulated live site DOM display */}
-                    <div className="w-full h-full bg-[#141312] p-4 text-[#FAF8F5] flex flex-col justify-between pointer-events-none">
-                      <header className="flex items-center justify-between border-b border-[#2A2825] pb-3">
-                        <div className="font-bold text-sm tracking-tight text-[#FAF7F0] flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-[#FAF7F0]" />
+                    <div className="w-full h-full bg-[#FAF7F0] p-4 text-[#0A192F] flex flex-col justify-between pointer-events-none">
+                      <header className="flex items-center justify-between border-b border-[#E8E1D3] pb-3">
+                        <div className="font-bold text-sm tracking-tight text-[#0A192F] flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#0A192F]" />
                           Acme Shop Live
                         </div>
-                        <div className="flex gap-3 text-xs text-[#B8B2A7]">
+                        <div className="flex gap-3 text-xs text-[#3B4D66]">
                           <span>Home</span>
                           <span>Catalog</span>
                           <span>Categories</span>
                         </div>
                       </header>
-                      <div className="my-auto p-4 rounded bg-[#1C1B19] border border-[#2A2825] space-y-2 shadow-[inset_0_1px_0_0_rgba(253,248,241,0.04)]">
-                        <h3 className="font-medium text-base text-[#FAF8F5]">
+                      <div className="my-auto p-4 rounded bg-[#FFFFFF] border border-[#DAD2C1] space-y-2 shadow-xs">
+                        <h3 className="font-semibold text-base text-[#0A192F]">
                           Live Headless Preview
                         </h3>
-                        <p className="text-xs text-[#B8B2A7] font-mono truncate">
+                        <p className="text-xs text-[#3B4D66] font-mono truncate">
                           {props.previewUrl}
                         </p>
-                        <div className="h-7 w-32 bg-[rgba(250,247,240,0.08)] border border-[rgba(250,247,240,0.15)] rounded text-[11px] text-[#FAF7F0] font-medium flex items-center justify-center">
+                        <div className="h-7 w-32 bg-[#F2ECE0] border border-[#DAD2C1] rounded text-[11px] text-[#0A192F] font-semibold flex items-center justify-center">
                           Active Sandbox
                         </div>
                       </div>
-                      <footer className="text-[10px] text-[#7E776C] pt-2 border-t border-[#2A2825] flex justify-between font-mono">
+                      <footer className="text-[10px] text-[#6E7F99] pt-2 border-t border-[#E8E1D3] flex justify-between font-mono">
                         <span>Viewport: {dims.w}×{dims.h}px</span>
                         <span>Playwright Sandboxed</span>
                       </footer>
@@ -613,9 +603,9 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                             y={props.region.y}
                             width={props.region.width}
                             height={props.region.height}
-                            fill="rgba(62,207,142,0.12)"
-                            stroke="#3ECF8E"
-                            strokeWidth="1.5"
+                            fill="rgba(10,25,47,0.12)"
+                            stroke="#0A192F"
+                            strokeWidth="2"
                             strokeDasharray="4 2"
                           />
                           {[
@@ -630,8 +620,8 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                               y={hy - 3}
                               width="6"
                               height="6"
-                              fill="#3ECF8E"
-                              stroke="#121212"
+                              fill="#0A192F"
+                              stroke="#FAF7F0"
                               strokeWidth="1"
                             />
                           ))}
@@ -644,8 +634,8 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                           y={hoveredElement.rect.y}
                           width={hoveredElement.rect.width}
                           height={hoveredElement.rect.height}
-                          fill="rgba(62,207,142,0.15)"
-                          stroke="#3ECF8E"
+                          fill="rgba(10,25,47,0.15)"
+                          stroke="#0A192F"
                           strokeWidth="2"
                         />
                       )}
@@ -656,15 +646,15 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                           y={props.pickedElement.rect.y}
                           width={props.pickedElement.rect.width}
                           height={props.pickedElement.rect.height}
-                          fill="rgba(62,207,142,0.20)"
-                          stroke="#3ECF8E"
+                          fill="rgba(10,25,47,0.22)"
+                          stroke="#0A192F"
                           strokeWidth="2"
                         />
                       )}
                     </svg>
 
                     {props.tool === "element" && hoveredElement && (
-                      <div className="absolute top-2 left-2 bg-[#1C1C1C] border border-[#3ECF8E] text-[11px] font-mono text-[#3ECF8E] px-2 py-1 rounded shadow-lg pointer-events-none z-10">
+                      <div className="absolute top-2 left-2 bg-[#0A192F] border border-[#172A45] text-[11px] font-mono text-[#FAF7F0] px-2 py-1 rounded shadow-lg pointer-events-none z-10">
                         {hoveredElement.selector}
                       </div>
                     )}
@@ -674,23 +664,23 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
             </div>
 
             {/* Selection Inspector Sidebar */}
-            <div className="w-full lg:w-[320px] bg-[#141312] border border-[#2A2825] rounded-[8px] p-4 flex flex-col justify-between space-y-4 shadow-[inset_0_1px_0_0_rgba(253,248,241,0.04)]">
+            <div className="w-full lg:w-[320px] bg-[#FFFFFF] border border-[#DAD2C1] rounded-[8px] p-4 flex flex-col justify-between space-y-4 shadow-sm">
               <div>
-                <div className="flex items-center justify-between pb-2 border-b border-[#2A2825]">
-                  <h3 className="text-xs font-semibold text-[#FAF8F5] uppercase tracking-wider">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E8E1D3]">
+                  <h3 className="text-xs font-bold text-[#0A192F] uppercase tracking-wider">
                     Selection Inspector
                   </h3>
-                  <span className="text-[11px] font-mono text-[#E7DCB9]">
+                  <span className="text-[11px] font-mono font-medium text-[#0A192F]">
                     {props.tool === "region" ? "Area mode" : props.tool === "element" ? "Element mode" : "Browse mode"}
                   </span>
                 </div>
 
                 {props.tool === "region" && (
                   <div className="mt-3 space-y-2 text-xs">
-                    <p className="text-[11px] text-[#B8B2A7]">Drag on the preview to set testing box:</p>
+                    <p className="text-[11px] text-[#3B4D66]">Drag on the preview to set testing box:</p>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-[11px] text-[#7E776C]">X</label>
+                        <label className="text-[11px] text-[#6E7F99]">X</label>
                         <input
                           type="number"
                           value={props.region ? props.region.x : 0}
@@ -702,11 +692,11 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                               height: props.region?.height ?? 100,
                             })
                           }
-                          className="w-full h-8 bg-[#0F0E0D] border border-[#2A2825] rounded px-2 font-mono text-[#FAF8F5] focus:outline-none focus:border-[#FAF7F0]"
+                          className="w-full h-8 bg-[#F7F4EB] border border-[#DAD2C1] rounded px-2 font-mono text-[#0A192F] focus:outline-none focus:border-[#0A192F]"
                         />
                       </div>
                       <div>
-                        <label className="text-[11px] text-[#7E776C]">Y</label>
+                        <label className="text-[11px] text-[#6E7F99]">Y</label>
                         <input
                           type="number"
                           value={props.region ? props.region.y : 0}
@@ -718,11 +708,11 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                               height: props.region?.height ?? 100,
                             })
                           }
-                          className="w-full h-8 bg-[#0F0E0D] border border-[#2A2825] rounded px-2 font-mono text-[#FAF8F5] focus:outline-none focus:border-[#FAF7F0]"
+                          className="w-full h-8 bg-[#F7F4EB] border border-[#DAD2C1] rounded px-2 font-mono text-[#0A192F] focus:outline-none focus:border-[#0A192F]"
                         />
                       </div>
                       <div>
-                        <label className="text-[11px] text-[#7E776C]">Width</label>
+                        <label className="text-[11px] text-[#6E7F99]">Width</label>
                         <input
                           type="number"
                           value={props.region ? props.region.width : 0}
@@ -734,11 +724,11 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                               height: props.region?.height ?? 100,
                             })
                           }
-                          className="w-full h-8 bg-[#0F0E0D] border border-[#2A2825] rounded px-2 font-mono text-[#FAF8F5] focus:outline-none focus:border-[#FAF7F0]"
+                          className="w-full h-8 bg-[#F7F4EB] border border-[#DAD2C1] rounded px-2 font-mono text-[#0A192F] focus:outline-none focus:border-[#0A192F]"
                         />
                       </div>
                       <div>
-                        <label className="text-[11px] text-[#7E776C]">Height</label>
+                        <label className="text-[11px] text-[#6E7F99]">Height</label>
                         <input
                           type="number"
                           value={props.region ? props.region.height : 0}
@@ -750,7 +740,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                               height: Number(e.target.value),
                             })
                           }
-                          className="w-full h-8 bg-[#0F0E0D] border border-[#2A2825] rounded px-2 font-mono text-[#FAF8F5] focus:outline-none focus:border-[#FAF7F0]"
+                          className="w-full h-8 bg-[#F7F4EB] border border-[#DAD2C1] rounded px-2 font-mono text-[#0A192F] focus:outline-none focus:border-[#0A192F]"
                         />
                       </div>
                     </div>
@@ -759,18 +749,18 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
 
                 {props.tool === "element" && (
                   <div className="mt-3 space-y-2">
-                    <span className="text-[11px] text-[#B8B2A7]">Picked element:</span>
+                    <span className="text-[11px] text-[#3B4D66]">Picked element:</span>
                     {props.pickedElement ? (
-                      <div className="p-2 rounded bg-[#0F0E0D] border border-[#FAF7F0] shadow-[0_0_8px_rgba(250,247,240,0.15)]">
-                        <code className="text-xs font-mono text-[#FAF7F0] break-all">
+                      <div className="p-2 rounded bg-[#F7F4EB] border border-[#0A192F] shadow-xs">
+                        <code className="text-xs font-mono font-medium text-[#0A192F] break-all">
                           {props.pickedElement.selector}
                         </code>
-                        <p className="text-[11px] text-[#B8B2A7] mt-1 font-mono">
+                        <p className="text-[11px] text-[#3B4D66] mt-1 font-mono">
                           {props.pickedElement.rect.width}×{props.pickedElement.rect.height}px
                         </p>
                       </div>
                     ) : (
-                      <div className="p-3 text-center border border-dashed border-[#2A2825] rounded text-xs text-[#7E776C]">
+                      <div className="p-3 text-center border border-dashed border-[#DAD2C1] rounded text-xs text-[#6E7F99]">
                         Click any element in the preview canvas to lock it
                       </div>
                     )}
@@ -778,7 +768,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 )}
 
                 <div className="mt-4">
-                  <label className="block text-[11px] text-[#B8B2A7] mb-1 font-medium">
+                  <label className="block text-[11px] text-[#3B4D66] mb-1 font-medium">
                     What looks wrong here?
                   </label>
                   <textarea
@@ -786,12 +776,12 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                     onChange={(e) => props.setNote(e.target.value)}
                     placeholder="e.g. Unwanted horizontal scrollbar or clipping"
                     rows={2}
-                    className="w-full bg-[#0F0E0D] border border-[#2A2825] rounded p-2 text-xs text-[#FAF8F5] placeholder:text-[#6E685C] focus:outline-none focus:border-[#FAF7F0]"
+                    className="w-full bg-[#F7F4EB] border border-[#DAD2C1] rounded p-2 text-xs text-[#0A192F] placeholder:text-[#8E9FBA] focus:outline-none focus:border-[#0A192F]"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2 pt-3 border-t border-[#2A2825]">
+              <div className="space-y-2 pt-3 border-t border-[#E8E1D3]">
                 <Btn
                   variant="secondary"
                   size="md"
@@ -817,12 +807,12 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
 
           {/* Captures tray */}
           {props.captures.length > 0 && (
-            <div className="pt-3 border-t border-[#2A2825]">
+            <div className="pt-3 border-t border-[#E8E1D3]">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-semibold text-[#FAF8F5] uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-[#0A192F] uppercase tracking-wider">
                   Saved Captures ({props.captures.length})
                 </h4>
-                <span className="text-[11px] text-[#8C8578]">
+                <span className="text-[11px] text-[#6E7F99]">
                   Supplied directly to Playwright & Gemma
                 </span>
               </div>
@@ -831,34 +821,34 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                 {props.captures.map((cap) => (
                   <div
                     key={cap.id}
-                    className="flex-shrink-0 w-44 bg-[#141312] border border-[#2A2825] rounded-[6px] p-2 hover:border-[#3E3A34] transition-colors shadow-[inset_0_1px_0_0_rgba(253,248,241,0.03)]"
+                    className="flex-shrink-0 w-44 bg-[#FFFFFF] border border-[#DAD2C1] rounded-[6px] p-2 hover:border-[#0A192F] transition-colors shadow-xs"
                   >
                     <div
                       onClick={() => props.onZoom(cap.imageUrl || "")}
-                      className="w-full h-20 bg-[#0F0E0D] rounded border border-[#2A2825] overflow-hidden flex items-center justify-center cursor-zoom-in"
+                      className="w-full h-20 bg-[#F7F4EB] rounded border border-[#E8E1D3] overflow-hidden flex items-center justify-center cursor-zoom-in"
                     >
-                      <span className="text-xs font-mono text-[#FAF7F0]">
+                      <span className="text-xs font-mono font-medium text-[#0A192F]">
                         {cap.width}×{cap.height}
                       </span>
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs">
-                      <span className="truncate text-[#FAF8F5] font-medium" title={cap.label}>
+                      <span className="truncate text-[#0A192F] font-semibold" title={cap.label}>
                         {cap.label}
                       </span>
                       <button
                         onClick={() => props.onDeleteCapture(cap.id)}
-                        className="text-[#7E776C] hover:text-[#EF4444]"
+                        className="text-[#6E7F99] hover:text-[#DC2626]"
                       >
                         ✕
                       </button>
                     </div>
-                    <div className="mt-1.5 flex items-center justify-between text-[11px] text-[#B8B2A7]">
+                    <div className="mt-1.5 flex items-center justify-between text-[11px] text-[#3B4D66]">
                       <label className="flex items-center gap-1 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={cap.includedInTest}
                           onChange={() => props.onToggleCaptureInTest(cap.id)}
-                          className="accent-[#FAF7F0]"
+                          className="accent-[#0A192F]"
                         />
                         <span>Include</span>
                       </label>
@@ -869,7 +859,7 @@ export function CombinedTargetAndPreview(props: CombinedTargetAndPreviewProps) {
                           a.download = `${cap.id}.png`;
                           a.click();
                         }}
-                        className="hover:text-[#FAF7F0]"
+                        className="hover:text-[#0A192F] font-medium"
                         title="Download"
                       >
                         ↓

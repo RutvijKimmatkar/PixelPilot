@@ -254,17 +254,18 @@ export function IssuesFound({
         ) : null
       }
     >
-      {/* Row 2: Filter chips on their own row to prevent crowding */}
-      <div className="flex items-center gap-1.5 pb-3 mb-3 border-b border-[#2E2E2E]">
-        <span className="text-[11px] text-[#707070] mr-1">Severity:</span>
+      {/* Row 2: Filter chips on their own row with flex-wrap so 'Low' never overflows */}
+      <div className="flex flex-wrap items-center gap-1.5 pb-3 mb-3 border-b border-[#2E2E2E]">
+        <span className="text-[11px] text-[#707070] mr-0.5 flex-shrink-0">Severity:</span>
         {(["all", "high", "medium", "low"] as const).map((lvl) => (
           <button
             key={lvl}
+            type="button"
             onClick={() => setFilter(lvl)}
-            className={`h-6 px-2.5 rounded-full text-xs transition-colors capitalize ${
+            className={`h-6 px-2.5 rounded-full text-xs transition-colors capitalize flex-shrink-0 ${
               filter === lvl
                 ? "bg-[#3ECF8E] text-[#121212] font-medium"
-                : "bg-[#1C1C1C] border border-[#2E2E2E] text-[#707070] hover:text-[#EDEDED]"
+                : "bg-[#1C1C1C] border border-[#2E2E2E] text-[#A0A0A0] hover:text-[#EDEDED]"
             }`}
           >
             {lvl}
@@ -295,9 +296,9 @@ export function IssuesFound({
               key={iss.id}
               className="bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#363636] transition-colors rounded-[8px] p-3.5"
             >
-              <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
                 <Badge kind={iss.severity} />
-                <span className="text-xs font-mono text-[#707070]">
+                <span className="text-xs font-mono text-[#707070] truncate max-w-[150px]">
                   {iss.pageUrl ? `${iss.pageUrl} · ` : ""}
                   {iss.viewport}
                 </span>

@@ -1,0 +1,33 @@
+{
+  "name": "visual-debugging-assistant-backend",
+  "version": "1.0.0",
+  "description": "Backend for Visual Debugging Assistant: Playwright automated checks + Gemma/Gemini visual layout diagnostics",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [
+    "visual-debugging",
+    "playwright",
+    "gemini",
+    "gemma",
+    "antigravity",
+    "responsive-design",
+    "hackathon"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "playwright": "^1.49.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

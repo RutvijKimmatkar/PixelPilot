@@ -1,4 +1,4 @@
-# pixelPilot: A Visual Debugging Assistant
+# PixelPilot: A Visual Debugging Assistant
 
 An automated frontend layout and visual responsiveness diagnosis platform powered by Playwright headless browser checks and Google Gemini/Gemma multimodal AI models. Built for the GDGC Hackathon.
 

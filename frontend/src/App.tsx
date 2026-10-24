@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import type {
-  ConsoleState,
   IssueItem,
   PlaywrightAction,
   SiteInfo,
@@ -13,8 +12,8 @@ import type {
   CaptureItem,
   LocalServer,
 } from "./types/console";
-import { TopBar, TargetPanel } from "./components/Header";
-import { LivePreviewPanel } from "./components/LivePreviewPanel";
+import { TopBar } from "./components/Header";
+import { CombinedTargetAndPreview } from "./components/CombinedTargetAndPreview";
 import { SiteSnapshot, Screenshots, DESKTOP_SHOT, MOBILE_SHOT } from "./components/Overview";
 import { PlaywrightTimeline, IssuesFound } from "./components/TimelineAndIssues";
 import { CodeWorkspace } from "./components/CodeWorkspace";
@@ -29,18 +28,7 @@ import {
 } from "./data/demoData";
 
 export function App() {
-  // Console state: 8 states
-  // 1. idle
-  // 2. validation_error
-  // 3. running
-  // 4. completed_issues (default view)
-  // 5. completed_clean
-  // 6. failed_blocked
-  // 7. preview_area_selected (NEW)
-  // 8. whole_site_running (NEW, page 3 of 10)
-  const [consoleState, setConsoleState] = useState<ConsoleState>("completed_issues");
-
-  // Target panel state
+  // Target & Live Preview unified state
   const [targetMode, setTargetMode] = useState<TargetMode>("public");
   const [url, setUrl] = useState("https://shop.acme-demo.dev");
   const [port, setPort] = useState("5173");
@@ -50,7 +38,7 @@ export function App() {
   const [maxPages, setMaxPages] = useState<number>(10);
   const [vp, setVp] = useState({ desktop: true, tablet: false, mobile: true });
 
-  // Live preview state
+  // Preview interactive state
   const [previewUrl, setPreviewUrl] = useState<string>("https://shop.acme-demo.dev");
   const [previewViewport, setPreviewViewport] = useState<ViewportKey>("mobile");
   const [previewTool, setPreviewTool] = useState<PreviewTool>("region");
@@ -59,7 +47,13 @@ export function App() {
   const [selectionNote, setSelectionNote] = useState<string>("");
   const [captures, setCaptures] = useState<CaptureItem[]>([]);
   const [isPreviewLoading, setIsPreviewLoading] = useState<boolean>(false);
-  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewError] = useState<string | null>(null);
+
+  // Execution status
+  const [status, setStatus] = useState<"idle" | "running" | "completed" | "failed">("completed");
+  const [isFailedBlocked, setIsFailedBlocked] = useState<boolean>(false);
+  const [runningActionIndex, setRunningActionIndex] = useState<number>(DEMO_ACTIONS.length);
+  const [hasReport, setHasReport] = useState<boolean>(true);
 
   // Local apps detection
   const [detectedServers, setDetectedServers] = useState<LocalServer[]>([]);
@@ -68,13 +62,10 @@ export function App() {
   // UI toast and modal state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [zoomSrc, setZoomSrc] = useState<string | null>(null);
-  const [hasReport, setHasReport] = useState<boolean>(true);
-  const [runningActionIndex, setRunningActionIndex] = useState<number>(0);
 
   // Section references for smooth scrolling
-  const targetRef = useRef<HTMLDivElement>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-  const runningTimelineRef = useRef<HTMLDivElement>(null);
+  const targetAndPreviewRef = useRef<HTMLDivElement>(null);
+  const sessionRef = useRef<HTMLDivElement>(null);
   const issuesRef = useRef<HTMLDivElement>(null);
   const codeRef = useRef<HTMLDivElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
@@ -86,26 +77,23 @@ export function App() {
     }
   };
 
-  // Sync state helpers
-  const isRunning = consoleState === "running" || consoleState === "whole_site_running";
-  const isIdle = consoleState === "idle";
-  const isFailedBlocked = consoleState === "failed_blocked";
-  const isValidationError = consoleState === "validation_error";
+  const isRunning = status === "running";
 
-  // Compute computed active URL
+  // Compute active target URL
   const activeTargetUrl =
     targetMode === "public"
       ? url.trim()
       : `http://localhost:${port}${path ? (path.startsWith("/") ? path : `/${path}`) : ""}`;
 
+  // Keep preview URL synchronized with active target URL
+  useEffect(() => {
+    if (activeTargetUrl && !activeTargetUrl.includes("undefined")) {
+      setPreviewUrl(activeTargetUrl);
+    }
+  }, [activeTargetUrl]);
+
   // URL validation error message
   const urlError = (() => {
-    if (isValidationError) {
-      return targetMode === "public"
-        ? "IP addresses and loopbacks are blocked. Use a public hostname."
-        : "Invalid port number. Enter a port between 1 and 65535.";
-    }
-
     if (targetMode === "public") {
       const u = url.trim().toLowerCase();
       if (!u) return null;
@@ -130,7 +118,6 @@ export function App() {
     return null;
   })();
 
-  // Primary button run enablement and helper text
   const canRun = (() => {
     if (urlError) return false;
     if (targetMode === "public" && !url.trim()) return false;
@@ -147,11 +134,11 @@ export function App() {
     return undefined;
   })();
 
-  // Stream in actions when in running state + auto-scroll
+  // Stream in actions when in running state + smooth scrolling flow
   useEffect(() => {
     if (!isRunning) return;
     setRunningActionIndex(1);
-    scrollToSection(runningTimelineRef);
+    scrollToSection(sessionRef);
 
     const interval = setInterval(() => {
       setRunningActionIndex((prev) => {
@@ -161,7 +148,8 @@ export function App() {
         }
         if (next >= DEMO_ACTIONS.length) {
           clearInterval(interval);
-          setConsoleState("completed_issues");
+          setStatus("completed");
+          setHasReport(true);
           setTimeout(() => {
             scrollToSection(codeRef);
           }, 400);
@@ -174,59 +162,9 @@ export function App() {
     return () => clearInterval(interval);
   }, [isRunning]);
 
-  // When switching states, trigger corresponding smooth scrolling and demo fixtures
-  const switchStateWithScroll = (newState: ConsoleState) => {
-    setConsoleState(newState);
-
-    if (newState === "idle") {
-      setUrl("");
-      setDesc("");
-      setRegion(null);
-      setPickedElement(null);
-      setPreviewUrl("");
-      setHasReport(false);
-      scrollToSection(targetRef);
-    } else if (newState === "validation_error") {
-      setTargetMode("public");
-      setUrl("192.168.1.10");
-      scrollToSection(targetRef);
-    } else if (newState === "running") {
-      setHasReport(false);
-    } else if (newState === "whole_site_running") {
-      setScope("site");
-      setMaxPages(10);
-      setHasReport(false);
-      scrollToSection(runningTimelineRef);
-    } else if (newState === "preview_area_selected") {
-      setTargetMode("public");
-      setUrl("https://shop.acme-demo.dev");
-      setPreviewUrl("https://shop.acme-demo.dev");
-      setScope("region");
-      setPreviewTool("region");
-      setRegion({ x: 32, y: 16, width: 310, height: 180 });
-      setPickedElement(null);
-      setTimeout(() => scrollToSection(previewRef), 100);
-    } else if (newState === "completed_issues") {
-      setTargetMode("public");
-      setUrl("https://shop.acme-demo.dev");
-      setDesc("Navbar overflows on mobile and the page scrolls sideways");
-      setHasReport(true);
-      setTimeout(() => scrollToSection(issuesRef), 100);
-    } else if (newState === "completed_clean") {
-      setUrl("https://clean-site.example");
-      setDesc("Check for responsive defects");
-      setHasReport(true);
-      setTimeout(() => scrollToSection(issuesRef), 100);
-    } else if (newState === "failed_blocked") {
-      setTargetMode("public");
-      setUrl("http://169.254.169.254/latest/meta-data");
-      setTimeout(() => scrollToSection(blockedBannerRef), 100);
-    }
-  };
-
   // Actions list based on state
   const currentActions: PlaywrightAction[] = (() => {
-    if (isIdle || isValidationError) return [];
+    if (status === "idle") return [];
     if (isFailedBlocked) {
       return [
         {
@@ -239,7 +177,7 @@ export function App() {
         },
       ];
     }
-    if (consoleState === "whole_site_running") {
+    if (scope === "site" && isRunning) {
       return [
         { id: "p1-1", name: "Crawl page /", detail: "Capture 1280px & 375px", duration: "1.2s", status: "done", pageUrl: "/", pageIndex: 1 },
         { id: "p1-2", name: "Measure overflow /", detail: "scrollWidth 612px > 375px", duration: "0.4s", status: "done", pageUrl: "/", pageIndex: 1 },
@@ -257,9 +195,8 @@ export function App() {
     return DEMO_ACTIONS;
   })();
 
-  // Site info based on state
   const currentSiteInfo: SiteInfo | null = (() => {
-    if (isIdle || isValidationError || isFailedBlocked) return null;
+    if (status === "idle" || isFailedBlocked) return null;
     return {
       ...DEMO_SITE_INFO,
       url: activeTargetUrl || DEMO_SITE_INFO.url,
@@ -271,54 +208,43 @@ export function App() {
           : scope === "element" && pickedElement
           ? `Element: ${pickedElement.selector}`
           : "This page",
-      pagesTested: consoleState === "whole_site_running" ? 3 : scope === "site" ? 10 : 1,
+      pagesTested: scope === "site" ? 10 : 1,
     };
   })();
 
-  // Issues based on state
   const currentIssues: IssueItem[] = (() => {
-    if (isIdle || isValidationError || isFailedBlocked) return [];
-    if (consoleState === "completed_clean") return [];
-    if (consoleState === "whole_site_running") {
-      return [
-        {
-          id: "iss-site-1",
-          severity: "high",
-          title: "Horizontal overflow on mobile navbar",
-          selector: "header.navbar > ul.nav-links",
-          measurement: "612px content in 375px viewport",
-          viewport: "375px",
-          pageUrl: "/",
-        },
-        {
-          id: "iss-site-2",
-          severity: "medium",
-          title: "Catalog grid image clip",
-          selector: "div.catalog-grid img",
-          measurement: "420px image in 360px cell",
-          viewport: "375px",
-          pageUrl: "/catalog",
-        },
-      ];
-    }
+    if (status === "idle" || isFailedBlocked) return [];
     return DEMO_ISSUES;
   })();
 
-  // Load preview handler
-  const handleLoadPreview = () => {
-    if (!activeTargetUrl) return;
-    setIsPreviewLoading(true);
-    setPreviewError(null);
-    setPreviewUrl(activeTargetUrl);
-
-    setTimeout(() => {
-      setIsPreviewLoading(false);
-      setToastMessage("Preview loaded");
-      scrollToSection(previewRef);
-    }, 450);
+  // Handlers
+  const handleRun = () => {
+    if (!canRun) return;
+    if (targetMode === "public") {
+      const u = url.trim().toLowerCase();
+      if (
+        u.includes("127.0.0.1") ||
+        u.includes("192.168") ||
+        u.includes("169.254") ||
+        /^\d+\.\d+\.\d+\.\d+$/.test(url.trim())
+      ) {
+        setIsFailedBlocked(true);
+        setStatus("failed");
+        setTimeout(() => scrollToSection(blockedBannerRef), 100);
+        return;
+      }
+    }
+    setIsFailedBlocked(false);
+    setStatus("running");
+    setHasReport(false);
   };
 
-  // Run detection of local dev servers
+  const handleCancel = () => {
+    setStatus("idle");
+    setToastMessage("Test run cancelled");
+    scrollToSection(targetAndPreviewRef);
+  };
+
   const handleDetectLocal = async () => {
     setDetectingServers(true);
     try {
@@ -335,38 +261,12 @@ export function App() {
     }
   };
 
-  // Run test handler
-  const handleRun = () => {
-    if (!canRun) return;
-    if (targetMode === "public") {
-      const u = url.trim().toLowerCase();
-      if (
-        u.includes("127.0.0.1") ||
-        u.includes("192.168") ||
-        u.includes("169.254") ||
-        /^\d+\.\d+\.\d+\.\d+$/.test(url.trim())
-      ) {
-        setConsoleState("validation_error");
-        scrollToSection(targetRef);
-        return;
-      }
-    }
-    setConsoleState(scope === "site" ? "whole_site_running" : "running");
-    setHasReport(false);
-  };
-
-  const handleCancel = () => {
-    setConsoleState("idle");
-    setToastMessage("Test run cancelled");
-    scrollToSection(targetRef);
-  };
-
   const handleSample = () => {
     setTargetMode("public");
     setUrl("https://shop.acme-demo.dev");
-    setPreviewUrl("https://shop.acme-demo.dev");
     setDesc("Navbar overflows on mobile and the page scrolls sideways");
-    setConsoleState("completed_issues");
+    setIsFailedBlocked(false);
+    setStatus("completed");
     setHasReport(true);
     setToastMessage("Sample bug loaded");
     setTimeout(() => scrollToSection(issuesRef), 100);
@@ -387,73 +287,37 @@ export function App() {
     <div className="min-h-screen bg-[#121212] text-[#EDEDED] flex flex-col font-sans selection:bg-[#006239] selection:text-[#3ECF8E]">
       {/* 1. TOP BAR */}
       <TopBar
-        state={consoleState}
+        state={
+          isFailedBlocked
+            ? "failed_blocked"
+            : status === "running"
+            ? scope === "site"
+              ? "whole_site_running"
+              : "running"
+            : status === "completed"
+            ? "completed_issues"
+            : "idle"
+        }
         onHistoryClick={() => {
           setToastMessage("Run history: 1 session loaded");
-          scrollToSection(targetRef);
+          scrollToSection(targetAndPreviewRef);
         }}
       />
 
-      {/* State Switcher for Judges / Testing (8 States) */}
-      <aside aria-label="State switcher" className="bg-[#171717] border-b border-[#2E2E2E] py-2 px-6 sticky top-14 z-20 backdrop-blur-md">
-        <div className="max-w-[1360px] mx-auto flex items-center justify-between flex-wrap gap-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[#707070]">Console states:</span>
-            <span className="text-[11px] text-[#3ECF8E] font-mono bg-[rgba(62,207,142,0.1)] px-2 py-0.5 rounded">
-              ⚡ 8 states supported
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {(
-              [
-                ["idle", "1. Idle"],
-                ["validation_error", "2. Validation Error"],
-                ["running", "3. Running"],
-                ["completed_issues", "4. Completed (Issues)"],
-                ["completed_clean", "5. Completed (Clean)"],
-                ["failed_blocked", "6. Failed / Blocked"],
-                ["preview_area_selected", "7. Preview Area Selected"],
-                ["whole_site_running", "8. Whole Site Running"],
-              ] as const
-            ).map(([s, label]) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => switchStateWithScroll(s)}
-                className={`px-2.5 py-1 rounded-[4px] text-xs transition-colors ${
-                  consoleState === s
-                    ? "bg-[#006239] border border-[#3ECF8E] text-[#3ECF8E] font-medium"
-                    : "bg-[#1C1C1C] border border-[#2E2E2E] text-[#A0A0A0] hover:text-[#EDEDED]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </aside>
-
-      {/* Floating Section Nav at right edge (docked cleanly, hidden below 1536px to avoid overlap) */}
+      {/* Floating Section Nav at right edge */}
       <nav
         aria-label="Section shortcuts"
         className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden 2xl:flex flex-col gap-1 bg-[#171717]/95 backdrop-blur-md border border-[#2E2E2E] p-1.5 rounded-[8px] shadow-2xl"
       >
         <button
-          onClick={() => scrollToSection(targetRef)}
-          title="Scroll to Target"
+          onClick={() => scrollToSection(targetAndPreviewRef)}
+          title="Scroll to Target & Preview"
           className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
         >
-          ↑ Target
+          ↑ Target & Preview
         </button>
         <button
-          onClick={() => scrollToSection(previewRef)}
-          title="Scroll to Live Preview"
-          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
-        >
-          ⌖ Preview
-        </button>
-        <button
-          onClick={() => scrollToSection(runningTimelineRef)}
+          onClick={() => scrollToSection(sessionRef)}
           title="Scroll to Playwright Live Session"
           className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
         >
@@ -484,9 +348,9 @@ export function App() {
 
       {/* MAIN CONTAINER */}
       <main className="flex-1 max-w-[1360px] w-full mx-auto px-6 py-6 space-y-6">
-        {/* 2. TARGET PANEL */}
-        <div ref={targetRef} id="target-section">
-          <TargetPanel
+        {/* COMBINED TARGET & LIVE PREVIEW PANEL */}
+        <div ref={targetAndPreviewRef} id="target-and-preview-section">
+          <CombinedTargetAndPreview
             mode={targetMode}
             setMode={setTargetMode}
             url={url}
@@ -507,51 +371,13 @@ export function App() {
             disabledReason={disabledReason}
             onRun={handleRun}
             onCancel={handleCancel}
-            onLoadPreview={handleLoadPreview}
             onDetectLocal={handleDetectLocal}
             detectedServers={detectedServers}
             detectingServers={detectingServers}
             onSample={handleSample}
             vp={vp}
             setVp={setVp}
-          />
-        </div>
-
-        {/* State 6: Blocked / Failed banner */}
-        {isFailedBlocked && (
-          <div
-            ref={blockedBannerRef}
-            id="blocked-banner"
-            className="bg-[rgba(239,68,68,0.12)] border border-[#EF4444] rounded-[8px] p-4 flex items-center justify-between gap-4 animate-slide-in"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-[#EF4444] font-bold text-base">✕</span>
-              <div>
-                <h3 className="text-sm font-medium text-[#EF4444]">
-                  This URL was blocked: it points to a private network address or cloud metadata service.
-                </h3>
-                <p className="text-xs text-[#A0A0A0] mt-0.5">
-                  Playwright security rules forbid inspecting internal subnets, RFC1918 loopbacks, or 169.254.x.x addresses in Public URL mode.
-                </p>
-              </div>
-            </div>
-            <Btn
-              variant="secondary"
-              size="md"
-              onClick={() => {
-                setUrl("https://shop.acme-demo.dev");
-                switchStateWithScroll("completed_issues");
-              }}
-            >
-              Try another URL
-            </Btn>
-          </div>
-        )}
-
-        {/* PHASE 2: NEW FULL-WIDTH LIVE PREVIEW PANEL */}
-        <div ref={previewRef} id="preview-section" className="w-full">
-          <LivePreviewPanel
-            url={previewUrl}
+            previewUrl={previewUrl}
             viewport={previewViewport}
             setViewport={setPreviewViewport}
             tool={previewTool}
@@ -578,23 +404,52 @@ export function App() {
             }}
             onZoom={(src) => setZoomSrc(src)}
             isLoading={isPreviewLoading}
-            onReload={handleLoadPreview}
+            onReload={() => {
+              setIsPreviewLoading(true);
+              setTimeout(() => setIsPreviewLoading(false), 300);
+            }}
             previewError={previewError}
           />
         </div>
 
-        {/* 3. MAIN GRID (3 Columns: 4 / 5 / 3 of 12)
-            Responsive: Under 1280px -> 2 cols; Under 1024px -> single column stacked
-        */}
+        {/* Blocked URL Banner */}
+        {isFailedBlocked && (
+          <div
+            ref={blockedBannerRef}
+            id="blocked-banner"
+            className="bg-[rgba(239,68,68,0.12)] border border-[#EF4444] rounded-[8px] p-4 flex items-center justify-between gap-4 animate-slide-in"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-[#EF4444] font-bold text-base">✕</span>
+              <div>
+                <h3 className="text-sm font-medium text-[#EF4444]">
+                  This URL was blocked: it points to a private network address or cloud metadata service.
+                </h3>
+                <p className="text-xs text-[#A0A0A0] mt-0.5">
+                  Playwright security rules forbid inspecting internal subnets, RFC1918 loopbacks, or 169.254.x.x addresses in Public URL mode.
+                </p>
+              </div>
+            </div>
+            <Btn
+              variant="secondary"
+              size="md"
+              onClick={() => {
+                setUrl("https://shop.acme-demo.dev");
+                setIsFailedBlocked(false);
+              }}
+            >
+              Try another URL
+            </Btn>
+          </div>
+        )}
+
+        {/* MAIN GRID (3 Columns: 4 / 5 / 3 of 12) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* LEFT: Website Overview (4/12) */}
           <div className="lg:col-span-4 space-y-6 order-4 lg:order-1">
-            <SiteSnapshot
-              info={currentSiteInfo}
-              loading={isRunning}
-            />
+            <SiteSnapshot info={currentSiteInfo} loading={isRunning} />
             <Screenshots
-              ready={!isIdle && !isValidationError && !isFailedBlocked && !isRunning}
+              ready={status !== "idle" && !isFailedBlocked && !isRunning}
               loading={isRunning}
               onZoom={(src) => setZoomSrc(src)}
               captures={captures}
@@ -603,13 +458,13 @@ export function App() {
           </div>
 
           {/* CENTER: Playwright Live Session (5/12) */}
-          <div ref={runningTimelineRef} id="session-section" className="lg:col-span-5 order-2 lg:order-2">
+          <div ref={sessionRef} id="session-section" className="lg:col-span-5 order-2 lg:order-2">
             <PlaywrightTimeline
               actions={currentActions}
               loading={isRunning}
               activeCount={currentActions.filter((a) => a.status === "done").length}
               totalCount={DEMO_ACTIONS.length}
-              isWholeSite={consoleState === "whole_site_running" || scope === "site"}
+              isWholeSite={scope === "site"}
             />
           </div>
 
@@ -627,7 +482,7 @@ export function App() {
           </div>
         </div>
 
-        {/* 4. CODE WORKSPACE (Full width) */}
+        {/* CODE WORKSPACE (Full width) */}
         <div ref={codeRef} id="code-section" className="w-full">
           <CodeWorkspace
             onCopy={handleCopy}
@@ -637,10 +492,10 @@ export function App() {
           />
         </div>
 
-        {/* 5. REPORT PANEL (Full width, bottom) */}
+        {/* REPORT PANEL (Full width, bottom) */}
         <div ref={reportRef} id="report-section" className="w-full">
           <ReportPanel
-            hasReport={hasReport && !isIdle && !isValidationError && !isFailedBlocked && !isRunning}
+            hasReport={hasReport && status !== "idle" && !isFailedBlocked && !isRunning}
             scope={scope}
             region={region}
             element={pickedElement}
@@ -654,7 +509,7 @@ export function App() {
         </div>
       </main>
 
-      {/* 6. TOAST AND ZOOM MODAL */}
+      {/* TOAST AND ZOOM MODAL */}
       <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
       <ZoomModal src={zoomSrc} onClose={() => setZoomSrc(null)} />
     </div>

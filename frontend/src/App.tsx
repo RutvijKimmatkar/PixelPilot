@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ConsoleState, IssueItem, PlaywrightAction, SiteInfo } from "./types/console";
 import { TopBar, TargetPanel } from "./components/Header";
 import { SiteSnapshot, Screenshots, DESKTOP_SHOT, MOBILE_SHOT } from "./components/Overview";
@@ -15,12 +15,6 @@ import {
 
 export function App() {
   // Console state: 6 states specified by the prompt
-  // 1. idle
-  // 2. validation_error
-  // 3. running
-  // 4. completed_issues (default view)
-  // 5. completed_clean
-  // 6. failed_blocked
   const [consoleState, setConsoleState] = useState<ConsoleState>("completed_issues");
 
   // Form values
@@ -33,6 +27,20 @@ export function App() {
   const [zoomSrc, setZoomSrc] = useState<string | null>(null);
   const [hasReport, setHasReport] = useState<boolean>(true);
   const [runningActionIndex, setRunningActionIndex] = useState<number>(0);
+
+  // Section references for smooth automated scrolling
+  const targetRef = useRef<HTMLDivElement>(null);
+  const runningTimelineRef = useRef<HTMLDivElement>(null);
+  const issuesRef = useRef<HTMLDivElement>(null);
+  const codeRef = useRef<HTMLDivElement>(null);
+  const reportRef = useRef<HTMLDivElement>(null);
+  const blockedBannerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   // Sync state helpers
   const isRunning = consoleState === "running";
@@ -48,22 +56,69 @@ export function App() {
       ? "IP addresses and localhost are blocked. Use a public hostname."
       : null;
 
-  // Stream in actions when in running state
+  // Stream in actions when in running state + auto-scroll down through phases
   useEffect(() => {
     if (!isRunning) return;
     setRunningActionIndex(1);
+
+    // Initial phase scroll: scroll to live Playwright running session
+    scrollToSection(runningTimelineRef);
+
     const interval = setInterval(() => {
       setRunningActionIndex((prev) => {
-        if (prev >= DEMO_ACTIONS.length) {
+        const next = prev + 1;
+
+        // Halfway through (e.g. actions 6-7 when screenshots/DOM overflow are tested) scroll to Issues
+        if (next === 7) {
+          scrollToSection(issuesRef);
+        }
+
+        if (next >= DEMO_ACTIONS.length) {
           clearInterval(interval);
           setConsoleState("completed_issues");
+          // Phase: completed - smoothly scroll down to Developed Code and Report
+          setTimeout(() => {
+            scrollToSection(codeRef);
+          }, 400);
           return DEMO_ACTIONS.length;
         }
-        return prev + 1;
+        return next;
       });
     }, 1200);
+
     return () => clearInterval(interval);
   }, [isRunning]);
+
+  // When switching states, trigger corresponding smooth scrolling
+  const switchStateWithScroll = (newState: ConsoleState) => {
+    setConsoleState(newState);
+
+    if (newState === "idle") {
+      setUrl("");
+      setDesc("");
+      setHasReport(false);
+      scrollToSection(targetRef);
+    } else if (newState === "validation_error") {
+      setUrl("192.168.1.1");
+      scrollToSection(targetRef);
+    } else if (newState === "running") {
+      setHasReport(false);
+      // Handled by running useEffect
+    } else if (newState === "completed_issues") {
+      setUrl("https://shop.acme-demo.dev");
+      setDesc("Navbar overflows on mobile and the page scrolls sideways");
+      setHasReport(true);
+      setTimeout(() => scrollToSection(issuesRef), 100);
+    } else if (newState === "completed_clean") {
+      setUrl("https://clean-site.example");
+      setDesc("Check for responsive defects");
+      setHasReport(true);
+      setTimeout(() => scrollToSection(issuesRef), 100);
+    } else if (newState === "failed_blocked") {
+      setUrl("http://10.0.0.1/admin");
+      setTimeout(() => scrollToSection(blockedBannerRef), 100);
+    }
+  };
 
   // Handle actions array based on current state
   const currentActions: PlaywrightAction[] = (() => {
@@ -106,6 +161,7 @@ export function App() {
   const handleRun = () => {
     if (url.includes("127.0.0.1") || url.includes("192.168") || /^\d+\.\d+\.\d+\.\d+$/.test(url.trim())) {
       setConsoleState("validation_error");
+      scrollToSection(targetRef);
       return;
     }
     setConsoleState("running");
@@ -115,6 +171,7 @@ export function App() {
   const handleCancel = () => {
     setConsoleState("idle");
     setToastMessage("Test run cancelled");
+    scrollToSection(targetRef);
   };
 
   const handleSample = () => {
@@ -123,6 +180,7 @@ export function App() {
     setConsoleState("completed_issues");
     setHasReport(true);
     setToastMessage("Sample bug loaded");
+    setTimeout(() => scrollToSection(issuesRef), 100);
   };
 
   const handleCopy = (text: string, label: string) => {
@@ -141,13 +199,21 @@ export function App() {
       {/* 1. TOP BAR */}
       <TopBar
         state={consoleState}
-        onHistoryClick={() => setToastMessage("Run history: 1 session loaded")}
+        onHistoryClick={() => {
+          setToastMessage("Run history: 1 session loaded");
+          scrollToSection(targetRef);
+        }}
       />
 
       {/* State Switcher for Judges / Testing */}
-      <aside aria-label="State switcher" className="bg-[#171717] border-b border-[#2E2E2E] py-2 px-6">
+      <aside aria-label="State switcher" className="bg-[#171717] border-b border-[#2E2E2E] py-2 px-6 sticky top-14 z-20 backdrop-blur-md">
         <div className="max-w-[1360px] mx-auto flex items-center justify-between flex-wrap gap-2 text-xs">
-          <span className="font-mono text-[#707070]">Console states (interactive demo switcher):</span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[#707070]">Console states:</span>
+            <span className="text-[11px] text-[#3ECF8E] font-mono bg-[rgba(62,207,142,0.1)] px-2 py-0.5 rounded">
+              ⚡ Smooth auto-scroll active
+            </span>
+          </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             {(
               [
@@ -162,26 +228,7 @@ export function App() {
               <button
                 key={s}
                 type="button"
-                onClick={() => {
-                  setConsoleState(s);
-                  if (s === "idle") {
-                    setUrl("");
-                    setDesc("");
-                    setHasReport(false);
-                  } else if (s === "validation_error") {
-                    setUrl("192.168.1.1");
-                  } else if (s === "completed_issues") {
-                    setUrl("https://shop.acme-demo.dev");
-                    setDesc("Navbar overflows on mobile");
-                    setHasReport(true);
-                  } else if (s === "completed_clean") {
-                    setUrl("https://clean-site.example");
-                    setDesc("Check for responsive defects");
-                    setHasReport(true);
-                  } else if (s === "failed_blocked") {
-                    setUrl("http://10.0.0.1/admin");
-                  }
-                }}
+                onClick={() => switchStateWithScroll(s)}
                 className={`px-2.5 py-1 rounded-[4px] text-xs transition-colors ${
                   consoleState === s
                     ? "bg-[#006239] border border-[#3ECF8E] text-[#3ECF8E] font-medium"
@@ -195,27 +242,72 @@ export function App() {
         </div>
       </aside>
 
+      {/* Quick Jump Navigation Floating Pill Bar */}
+      <nav aria-label="Section shortcuts" className="fixed right-6 bottom-6 z-40 hidden xl:flex flex-col gap-1.5 bg-[#171717]/90 backdrop-blur-md border border-[#2E2E2E] p-1.5 rounded-[8px] shadow-2xl">
+        <button
+          onClick={() => scrollToSection(targetRef)}
+          title="Scroll to Target"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+        >
+          ↑ Target
+        </button>
+        <button
+          onClick={() => scrollToSection(runningTimelineRef)}
+          title="Scroll to Playwright Live Session"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+        >
+          ▶ Session
+        </button>
+        <button
+          onClick={() => scrollToSection(issuesRef)}
+          title="Scroll to Issues Found"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+        >
+          ▲ Issues
+        </button>
+        <button
+          onClick={() => scrollToSection(codeRef)}
+          title="Scroll to Developed Code"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+        >
+          { } Code
+        </button>
+        <button
+          onClick={() => scrollToSection(reportRef)}
+          title="Scroll to Report"
+          className="px-2.5 py-1 text-[11px] font-mono text-[#A0A0A0] hover:text-[#3ECF8E] hover:bg-[#232323] rounded transition-colors text-left"
+        >
+          ↓ Report
+        </button>
+      </nav>
+
       {/* MAIN CONTAINER */}
       <main className="flex-1 max-w-[1360px] w-full mx-auto px-6 py-6 space-y-6">
         {/* 2. TARGET PANEL */}
-        <TargetPanel
-          url={url}
-          desc={desc}
-          setUrl={setUrl}
-          setDesc={setDesc}
-          error={urlError}
-          running={isRunning}
-          canRun={url.trim().length > 0}
-          onRun={handleRun}
-          onCancel={handleCancel}
-          onSample={handleSample}
-          vp={vp}
-          setVp={setVp}
-        />
+        <div ref={targetRef} id="target-section">
+          <TargetPanel
+            url={url}
+            desc={desc}
+            setUrl={setUrl}
+            setDesc={setDesc}
+            error={urlError}
+            running={isRunning}
+            canRun={url.trim().length > 0}
+            onRun={handleRun}
+            onCancel={handleCancel}
+            onSample={handleSample}
+            vp={vp}
+            setVp={setVp}
+          />
+        </div>
 
         {/* State 6: Blocked / Failed banner */}
         {isFailedBlocked && (
-          <div className="bg-[rgba(239,68,68,0.12)] border border-[#EF4444] rounded-[8px] p-4 flex items-center justify-between gap-4">
+          <div
+            ref={blockedBannerRef}
+            id="blocked-banner"
+            className="bg-[rgba(239,68,68,0.12)] border border-[#EF4444] rounded-[8px] p-4 flex items-center justify-between gap-4 animate-slide-in"
+          >
             <div className="flex items-center gap-3">
               <span className="text-[#EF4444] font-bold text-base">✕</span>
               <div>
@@ -232,7 +324,7 @@ export function App() {
               size="md"
               onClick={() => {
                 setUrl("https://shop.acme-demo.dev");
-                setConsoleState("completed_issues");
+                switchStateWithScroll("completed_issues");
               }}
             >
               Try another URL
@@ -258,7 +350,7 @@ export function App() {
           </div>
 
           {/* CENTER: Playwright Live Session (5/12) */}
-          <div className="lg:col-span-5 order-2 lg:order-2">
+          <div ref={runningTimelineRef} id="session-section" className="lg:col-span-5 order-2 lg:order-2">
             <PlaywrightTimeline
               actions={currentActions}
               loading={isRunning}
@@ -268,7 +360,7 @@ export function App() {
           </div>
 
           {/* RIGHT: Issues Found (3/12) */}
-          <div className="lg:col-span-3 order-3 lg:order-3">
+          <div ref={issuesRef} id="issues-section" className="lg:col-span-3 order-3 lg:order-3">
             <IssuesFound
               issues={currentIssues}
               loading={isRunning}
@@ -281,17 +373,18 @@ export function App() {
         </div>
 
         {/* 4. CODE WORKSPACE (Full width) */}
-        <div className="w-full">
+        <div ref={codeRef} id="code-section" className="w-full">
           <CodeWorkspace onCopy={handleCopy} />
         </div>
 
         {/* 5. REPORT PANEL (Full width, bottom) */}
-        <div className="w-full">
+        <div ref={reportRef} id="report-section" className="w-full">
           <ReportPanel
             hasReport={hasReport && !isIdle && !isValidationError && !isFailedBlocked && !isRunning}
             onGenerateReport={() => {
               setHasReport(true);
               setToastMessage("Report generated successfully");
+              scrollToSection(reportRef);
             }}
             onExport={handleExport}
           />

@@ -32,8 +32,29 @@ const BASE_URL: string =
   (env.VITE_API_URL as string | undefined)?.replace(/\/+$/, "") ||
   "http://localhost:3000";
 
-const IS_MOCK_ENABLED: boolean =
+const ENV_MOCK_ENABLED: boolean =
   String(env.VITE_USE_MOCK).toLowerCase() === "true";
+
+let runtimeMockEnabled: boolean =
+  typeof localStorage !== "undefined" &&
+  localStorage.getItem("DEBUG_USE_MOCK") !== null
+    ? localStorage.getItem("DEBUG_USE_MOCK") === "true"
+    : ENV_MOCK_ENABLED;
+
+export function isMockSupported(): boolean {
+  return ENV_MOCK_ENABLED;
+}
+
+export function isMockEnabled(): boolean {
+  return runtimeMockEnabled;
+}
+
+export function setMockEnabled(enabled: boolean): void {
+  runtimeMockEnabled = enabled;
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("DEBUG_USE_MOCK", String(enabled));
+  }
+}
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -69,7 +90,7 @@ export async function createAnalysis(
   url: string,
   description: string
 ): Promise<CreateAnalysisResponse> {
-  if (IS_MOCK_ENABLED) {
+  if (isMockEnabled()) {
     return mockApi.createAnalysis(url, description);
   }
 
@@ -95,7 +116,7 @@ export async function createAnalysis(
 }
 
 export async function getJob(jobId: string): Promise<Job> {
-  if (IS_MOCK_ENABLED) {
+  if (isMockEnabled()) {
     return mockApi.getJob(jobId);
   }
 
@@ -114,7 +135,7 @@ export async function getJob(jobId: string): Promise<Job> {
 }
 
 export async function getReport(jobId: string): Promise<Report> {
-  if (IS_MOCK_ENABLED) {
+  if (isMockEnabled()) {
     return mockApi.getReport(jobId);
   }
 
@@ -135,7 +156,7 @@ export async function getReport(jobId: string): Promise<Report> {
 }
 
 export async function cancelAnalysis(jobId: string): Promise<void> {
-  if (IS_MOCK_ENABLED) {
+  if (isMockEnabled()) {
     return mockApi.cancelAnalysis(jobId);
   }
 

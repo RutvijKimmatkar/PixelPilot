@@ -1,0 +1,14 @@
+{
+  "name": "visual-debugging-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Visual Debugging Assistant: Playwright automated checks + Gemma/Gemini visual layout diagnostics",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:backend": "npm --prefix backend start",
+    "start:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install"
+  }
+}

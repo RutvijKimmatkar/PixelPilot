@@ -1,22 +1,39 @@
 import { useState } from "react";
 import { Panel, Btn, Badge, EmptyState } from "./ui";
+import type { TestScope, SelectionRegion, PickedElement } from "../types/console";
 
 interface ReportPanelProps {
   hasReport: boolean;
+  scope?: TestScope;
+  region?: SelectionRegion | null;
+  element?: PickedElement | null;
   onGenerateReport: () => void;
   onExport: (format: "markdown" | "pdf" | "json") => void;
 }
 
-export function ReportPanel({ hasReport, onGenerateReport, onExport }: ReportPanelProps) {
+export function ReportPanel({
+  hasReport,
+  scope = "page",
+  region,
+  element,
+  onGenerateReport,
+  onExport,
+}: ReportPanelProps) {
   const [exportOpen, setExportOpen] = useState(false);
 
   const testRows = [
-    { check: "URL safety", result: "passed", evidence: "Public host, TLS 1.3, internal IPs blocked" },
+    { check: "URL safety & Host verification", result: "passed", evidence: "Public host TLS 1.3 verified, loopback boundaries enforced" },
     { check: "Desktop render at 1280px", result: "passed", evidence: "Status 200, First Contentful Paint 0.8s, full viewport clear" },
     { check: "Mobile render at 375px", result: "failed", evidence: "Horizontal overflow detected (612px > 375px viewport)" },
     { check: "DOM overflow scan", result: "failed", evidence: "2 elements exceed clientWidth (header.navbar > ul.nav-links, img.hero-banner)" },
     { check: "Console errors", result: "warning", evidence: "2 runtime errors: Failed to load /assets/logo.svg (404)" },
-    { check: "AI diagnosis", result: "completed", evidence: "Gemma multimodal inference: root cause identified and fix compiled" },
+    { check: "AI diagnosis (Gemma)", result: "completed", evidence: "Multimodal inference: root cause identified and fix compiled" },
+  ] as const;
+
+  const pagesTested = [
+    { page: "/", issues: 2, severity: "high", status: 200 },
+    { page: "/catalog", issues: 1, severity: "medium", status: 200 },
+    { page: "/product/12", issues: 0, severity: "passed", status: 200 },
   ] as const;
 
   return (
@@ -44,7 +61,7 @@ export function ReportPanel({ hasReport, onGenerateReport, onExport }: ReportPan
               </Btn>
 
               {exportOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-36 bg-[#1C1C1C] border border-[#2E2E2E] rounded-[6px] shadow-xl py-1 z-20">
+                <div className="absolute right-0 top-full mt-1.5 w-40 bg-[#1C1C1C] border border-[#2E2E2E] rounded-[6px] shadow-xl py-1 z-20">
                   <button
                     onClick={() => {
                       onExport("markdown");
@@ -91,12 +108,50 @@ export function ReportPanel({ hasReport, onGenerateReport, onExport }: ReportPan
       ) : (
         <div className="space-y-6">
           {/* Summary line */}
-          <div className="flex items-center gap-3 p-3 bg-[#1C1C1C] rounded-[6px] border border-[#2E2E2E] text-xs font-mono">
-            <span className="w-2 h-2 rounded-full bg-[#3ECF8E]" />
-            <span className="text-[#EDEDED]">
-              9 actions · 3 issues · 1 high severity · finished in 11.4s
-            </span>
+          <div className="flex items-center justify-between flex-wrap gap-2 p-3 bg-[#1C1C1C] rounded-[6px] border border-[#2E2E2E] text-xs font-mono">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#3ECF8E]" />
+              <span className="text-[#EDEDED]">
+                9 actions · 3 issues · 1 high severity · finished in 11.4s
+              </span>
+            </div>
+            <div className="text-[#3ECF8E] font-medium">
+              Scope: {scope.toUpperCase()}
+              {scope === "region" && region ? ` (${region.width}×${region.height}px)` : ""}
+              {scope === "element" && element ? ` (${element.selector})` : ""}
+            </div>
           </div>
+
+          {/* Whole site: Pages tested table */}
+          {scope === "site" && (
+            <div>
+              <h3 className="text-sm font-medium text-[#EDEDED] mb-3">Pages tested</h3>
+              <div className="rounded-[8px] border border-[#2E2E2E] overflow-hidden">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-[#1C1C1C] border-b border-[#2E2E2E] text-[#A0A0A0]">
+                      <th className="py-2 px-4 font-medium">Page</th>
+                      <th className="py-2 px-4 font-medium">Issues</th>
+                      <th className="py-2 px-4 font-medium">Highest severity</th>
+                      <th className="py-2 px-4 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#2E2E2E]">
+                    {pagesTested.map((pt, i) => (
+                      <tr key={i} className="hover:bg-[#1C1C1C]">
+                        <td className="py-2.5 px-4 font-mono text-[#EDEDED]">{pt.page}</td>
+                        <td className="py-2.5 px-4 font-mono">{pt.issues}</td>
+                        <td className="py-2.5 px-4">
+                          <Badge kind={pt.severity === "passed" ? "passed" : (pt.severity as any)} />
+                        </td>
+                        <td className="py-2.5 px-4 font-mono text-[#3ECF8E]">{pt.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {/* Checklist table: What was tested */}
           <div>

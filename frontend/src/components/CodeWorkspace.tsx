@@ -1,12 +1,25 @@
 import { useState } from "react";
 import { Panel, Btn } from "./ui";
-import { PLAYWRIGHT_SCRIPT_CODE, SUGGESTED_FIX_CODE, ANTIGRAVITY_PROMPT } from "../data/demoData";
+import {
+  PLAYWRIGHT_SCRIPT_CODE,
+  SUGGESTED_FIX_CODE,
+  ANTIGRAVITY_PROMPT,
+} from "../data/demoData";
+import type { TestScope, SelectionRegion, PickedElement } from "../types/console";
 
 interface CodeWorkspaceProps {
   onCopy: (text: string, label: string) => void;
+  scope?: TestScope;
+  region?: SelectionRegion | null;
+  element?: PickedElement | null;
 }
 
-export function CodeWorkspace({ onCopy }: CodeWorkspaceProps) {
+export function CodeWorkspace({
+  onCopy,
+  scope = "page",
+  region,
+  element,
+}: CodeWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<"script" | "fix" | "prompt">("fix");
 
   const tabs = [
@@ -17,14 +30,162 @@ export function CodeWorkspace({ onCopy }: CodeWorkspaceProps) {
 
   const currentTab = tabs.find((t) => t.id === activeTab)!;
 
+  // Generate scope-aware code for the Playwright script
+  const getScriptCode = () => {
+    if (scope === "site") {
+      return `import { test, expect, chromium } from '@playwright/test';
+
+// Whole-site crawl loop up to maxPages (same origin)
+test('crawl and test whole site for layout defects', async () => {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  const visited = new Set<string>();
+  const queue = ['https://shop.acme-demo.dev'];
+  const maxPages = 10;
+
+  while (queue.length > 0 && visited.size < maxPages) {
+    const url = queue.shift()!;
+    if (visited.has(url)) continue;
+    visited.add(url);
+
+    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.setViewportSize({ width: 375, height: 812 });
+
+    // Collect internal links
+    const links = await page.$$eval('a[href]', anchors =>
+      anchors.map(a => a.href).filter(h => h.startsWith(location.origin))
+    );
+    links.forEach(l => { if (!visited.has(l)) queue.push(l); });
+
+    // Measure horizontal DOM overflow
+    const overflows = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('*'))
+        .filter(el => el.scrollWidth > document.documentElement.clientWidth)
+        .map(el => ({ tag: el.tagName, class: el.className }))
+    );
+    console.log(\`[\${url}] Found \${overflows.length} overflow elements\`);
+  }
+
+  await browser.close();
+});`;
+    }
+
+    if (scope === "region" && region) {
+      return `import { test, chromium } from '@playwright/test';
+
+test('inspect selected area region clip', async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('https://shop.acme-demo.dev', { waitUntil: 'networkidle' });
+
+  // Cropped area screenshot with explicit bounding box
+  await page.screenshot({
+    path: 'artifacts/region.png',
+    clip: {
+      x: ${region.x},
+      y: ${region.y},
+      width: ${region.width},
+      height: ${region.height}
+    }
+  });
+
+  // Evaluate elements intersecting this coordinate region
+  const regionElements = await page.evaluate(({ rx, ry, rw, rh }) => {
+    return Array.from(document.querySelectorAll('*')).filter(el => {
+      const b = el.getBoundingClientRect();
+      return b.left < rx + rw && b.right > rx && b.top < ry + rh && b.bottom > ry;
+    }).map(el => el.tagName.toLowerCase());
+  }, { rx: ${region.x}, ry: ${region.y}, rw: ${region.width}, rh: ${region.height} });
+
+  console.log('Elements inside selection:', regionElements);
+  await browser.close();
+});`;
+    }
+
+    if (scope === "element" && element) {
+      return `import { test, chromium } from '@playwright/test';
+
+test('inspect target element subtree', async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('https://shop.acme-demo.dev', { waitUntil: 'networkidle' });
+
+  // Target element locator screenshot
+  const locator = page.locator('${element.selector}');
+  await locator.screenshot({ path: 'artifacts/element.png' });
+
+  // Measure element bounding box and computed properties
+  const metrics = await locator.evaluate(el => ({
+    scrollWidth: el.scrollWidth,
+    clientWidth: el.clientWidth,
+    overflowX: window.getComputedStyle(el).overflowX,
+    flexWrap: window.getComputedStyle(el).flexWrap
+  }));
+
+  console.log('Element metrics:', metrics);
+  await browser.close();
+});`;
+    }
+
+    return PLAYWRIGHT_SCRIPT_CODE;
+  };
+
+  // Generate scope-aware Antigravity AI prompt
+  const getPromptCode = () => {
+    if (scope === "region" && region) {
+      return `Fix layout bug inside bounded region (x: ${region.x}, y: ${region.y}, ${region.width}×${region.height}px) on https://shop.acme-demo.dev.
+
+Context:
+Bounding Box: { x: ${region.x}, y: ${region.y}, width: ${region.width}, height: ${region.height} }
+Symptom: Overflow and misalignment within the specified area.
+
+Instructions:
+1. Examine elements contained within the (x: ${region.x}, y: ${region.y}) clip area.
+2. Check padding, flex-wrap, and max-width boundaries on container elements.
+3. Validate with Playwright clip screenshot to ensure no overflow outside the rectangle.`;
+    }
+
+    if (scope === "element" && element) {
+      return `Fix visual layout bug on specific element '${element.selector}' on https://shop.acme-demo.dev.
+
+Context:
+Selector: ${element.selector}
+Tag: <${element.tagName}>
+Dimensions: ${element.rect.width}px × ${element.rect.height}px
+
+Instructions:
+1. Locate '${element.selector}' in the frontend stylesheet.
+2. Ensure flex-wrap: wrap is applied and flex items collapse neatly on mobile viewports.
+3. Verify using 'page.locator("${element.selector}").screenshot()' that contents do not overflow clientWidth.`;
+    }
+
+    if (scope === "site") {
+      return `Fix recurring visual overflow patterns across multiple site pages on https://shop.acme-demo.dev.
+
+Scope: Whole site crawl (10 pages)
+Issues Detected: 3 pages have navigation bars and banner hero images that break horizontal boundaries.
+
+Instructions:
+1. Apply a global layout rule in globals.css setting 'html, body { overflow-x: hidden; }'.
+2. Normalize all navbar lists to wrap on screens under 768px.
+3. Constrain all <img> tags with 'max-width: 100%; height: auto;'.`;
+    }
+
+    return ANTIGRAVITY_PROMPT;
+  };
+
   const getContent = () => {
     switch (activeTab) {
       case "script":
-        return PLAYWRIGHT_SCRIPT_CODE;
+        return getScriptCode();
       case "fix":
         return SUGGESTED_FIX_CODE;
       case "prompt":
-        return ANTIGRAVITY_PROMPT;
+        return getPromptCode();
     }
   };
 
@@ -32,7 +193,10 @@ export function CodeWorkspace({ onCopy }: CodeWorkspaceProps) {
   const lines = codeText.split("\n");
 
   const handleCopy = () => {
-    onCopy(codeText, activeTab === "prompt" ? "Prompt copied to clipboard" : "Code copied to clipboard");
+    onCopy(
+      codeText,
+      activeTab === "prompt" ? "Prompt copied to clipboard" : "Code copied to clipboard"
+    );
   };
 
   // Syntax highlighting helper for CSS/TS/Prompt
@@ -41,20 +205,18 @@ export function CodeWorkspace({ onCopy }: CodeWorkspaceProps) {
       return <span>{line}</span>;
     }
 
-    // Basic regex based token coloring
-    // keywords: #C4B5FD, properties: #7DD3FC, strings: #3ECF8E, numbers: #F5A524, comments: #707070
     if (line.trim().startsWith("//") || line.trim().startsWith("/*") || line.trim().startsWith("*")) {
       return <span style={{ color: "#707070" }}>{line}</span>;
     }
 
-    const parts = line.split(/(\b(?:import|export|const|await|async|test|expect|return|from|display|flex|flex-direction|flex-wrap|max-width|overflow-x|width|height|gap|padding|tag|className|scrollWidth|clientWidth)\b|'[^']*'|"[^"]*"|`[^`]*`|\d+px|\d+ms|\b\d+\b)/g);
+    const parts = line.split(
+      /(\b(?:import|export|const|let|while|await|async|test|expect|return|from|display|flex|flex-direction|flex-wrap|max-width|overflow-x|width|height|gap|padding|tag|className|scrollWidth|clientWidth)\b|'[^']*'|"[^"]*"|`[^`]*`|\d+px|\d+ms|\b\d+\b)/g
+    );
 
     return (
       <>
         {parts.map((p, idx) => {
-          if (
-            /^(import|export|const|await|async|test|expect|return|from)$/.test(p)
-          ) {
+          if (/^(import|export|const|let|while|await|async|test|expect|return|from)$/.test(p)) {
             return (
               <span key={idx} style={{ color: "#C4B5FD" }}>
                 {p}
@@ -114,11 +276,11 @@ export function CodeWorkspace({ onCopy }: CodeWorkspaceProps) {
       }
     >
       <div className="rounded-[8px] border border-[#2E2E2E] bg-[#171717] overflow-hidden">
-        {/* Header bar 40px */}
         <div className="h-10 px-4 bg-[#1C1C1C] border-b border-[#2E2E2E] flex items-center justify-between text-xs">
           <div className="flex items-center gap-3 font-mono text-[#A0A0A0]">
             <span className="text-[#3ECF8E]">●</span>
             <span className="text-[#EDEDED] font-medium">{currentTab.filename}</span>
+            <span className="text-[#707070]">({scope} scope)</span>
             <span className="text-[#707070]">{lines.length} lines</span>
           </div>
           <Btn variant="ghost" size="md" onClick={handleCopy}>
@@ -130,7 +292,6 @@ export function CodeWorkspace({ onCopy }: CodeWorkspaceProps) {
           </Btn>
         </div>
 
-        {/* Code viewing area */}
         <div className="p-4 overflow-x-auto text-[13px] leading-[22px] font-mono bg-[#171717] max-h-[380px]">
           {lines.map((line, i) => (
             <div

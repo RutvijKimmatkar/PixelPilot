@@ -1,4 +1,9 @@
-import type { ConsoleState } from "../types/console";
+import type {
+  ConsoleState,
+  TargetMode,
+  TestScope,
+  LocalServer,
+} from "../types/console";
 import { Btn, Chip, Spinner } from "./ui";
 
 export function TopBar({
@@ -23,6 +28,16 @@ export function TopBar({
       bg: "bg-[rgba(62,207,142,0.10)] text-[#3ECF8E] border border-[#3ECF8E]",
       label: "Running",
       icon: <Spinner className="w-3 h-3 text-[#3ECF8E]" />,
+    },
+    whole_site_running: {
+      bg: "bg-[rgba(62,207,142,0.10)] text-[#3ECF8E] border border-[#3ECF8E]",
+      label: "Crawling site (Page 3/10)",
+      icon: <Spinner className="w-3 h-3 text-[#3ECF8E]" />,
+    },
+    preview_area_selected: {
+      bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E]",
+      label: "Preview ready · Area selected",
+      icon: <span className="text-xs font-bold">⌖</span>,
     },
     completed_issues: {
       bg: "bg-[rgba(62,207,142,0.12)] text-[#3ECF8E]",
@@ -82,21 +97,44 @@ export function TopBar({
 }
 
 interface TargetProps {
+  mode: TargetMode;
+  setMode: (m: TargetMode) => void;
   url: string;
-  desc: string;
   setUrl: (v: string) => void;
+  port: string;
+  setPort: (v: string) => void;
+  path: string;
+  setPath: (v: string) => void;
+  desc: string;
   setDesc: (v: string) => void;
+  scope: TestScope;
+  setScope: (s: TestScope) => void;
+  maxPages: number;
+  setMaxPages: (n: number) => void;
   error: string | null;
   running: boolean;
   canRun: boolean;
+  disabledReason?: string;
   onRun: () => void;
   onCancel: () => void;
+  onLoadPreview: () => void;
+  onDetectLocal: () => void;
+  detectedServers: LocalServer[];
+  detectingServers: boolean;
   onSample: () => void;
-  vp: { desktop: boolean; mobile: boolean };
-  setVp: (v: { desktop: boolean; mobile: boolean }) => void;
+  vp: { desktop: boolean; tablet: boolean; mobile: boolean };
+  setVp: (v: { desktop: boolean; tablet: boolean; mobile: boolean }) => void;
 }
 
 export function TargetPanel(props: TargetProps) {
+  // Label for primary run button following scope
+  const runBtnLabel = {
+    site: "Test whole site",
+    page: "Test this page",
+    region: "Test selected area",
+    element: "Test selected element",
+  }[props.scope];
+
   return (
     <div className="relative">
       {/* Subtle radial emerald glow behind Target panel */}
@@ -110,45 +148,212 @@ export function TargetPanel(props: TargetProps) {
       />
 
       <section className="relative bg-[#171717] border border-[#2E2E2E] rounded-[12px] p-6 hover:border-[#363636] transition-colors">
-        <h1 className="text-[32px] leading-[38px] font-medium tracking-[-0.02em] text-[#EDEDED]">
-          Test a live page
-        </h1>
-        <p className="text-sm text-[#A0A0A0] mt-1.5 max-w-2xl">
-          Paste a public URL and describe the bug. Playwright tests it and writes the fix.
-        </p>
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+          <div>
+            <h1 className="text-[32px] leading-[38px] font-medium tracking-[-0.02em] text-[#EDEDED]">
+              Test a live page
+            </h1>
+            <p className="text-sm text-[#A0A0A0] mt-1 max-w-2xl">
+              Paste a public URL or connect to localhost. Playwright tests it and writes the fix.
+            </p>
+          </div>
 
-        <div className="mt-6 flex flex-col lg:flex-row gap-4 items-stretch lg:items-start">
-          {/* URL Input */}
-          <div className="flex-[2] min-w-0">
-            <label htmlFor="url-input" className="block text-xs text-[#A0A0A0] mb-1.5 font-medium">
-              Page URL
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-3.5 text-[#707070] pointer-events-none" aria-hidden="true">
-                <svg
-                  className="w-4 h-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
+          {/* Mode Segmented Control: Public URL | Localhost */}
+          <div className="flex items-center p-1 bg-[#1C1C1C] rounded-[8px] border border-[#2E2E2E]">
+            <button
+              type="button"
+              onClick={() => props.setMode("public")}
+              className={`px-3 py-1.5 text-xs font-medium rounded-[6px] transition-colors ${
+                props.mode === "public"
+                  ? "bg-[#006239] text-[#3ECF8E] border border-[#3ECF8E]/50 shadow-sm"
+                  : "text-[#A0A0A0] hover:text-[#EDEDED]"
+              }`}
+            >
+              Public URL
+            </button>
+            <button
+              type="button"
+              onClick={() => props.setMode("localhost")}
+              className={`px-3 py-1.5 text-xs font-medium rounded-[6px] transition-colors ${
+                props.mode === "localhost"
+                  ? "bg-[#006239] text-[#3ECF8E] border border-[#3ECF8E]/50 shadow-sm"
+                  : "text-[#A0A0A0] hover:text-[#EDEDED]"
+              }`}
+            >
+              Localhost
+            </button>
+          </div>
+        </div>
+
+        {/* Test Scope Segmented Control */}
+        <div className="mb-5 p-3 rounded-[8px] bg-[#1C1C1C] border border-[#2E2E2E] flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#A0A0A0] font-medium">Test scope:</span>
+            <div className="flex items-center gap-1">
+              {(
+                [
+                  ["site", "Whole site"],
+                  ["page", "This page"],
+                  ["region", "Selected area"],
+                  ["element", "Selected element"],
+                ] as const
+              ).map(([sKey, sLabel]) => (
+                <button
+                  key={sKey}
+                  type="button"
+                  onClick={() => props.setScope(sKey)}
+                  className={`px-2.5 py-1 text-xs rounded-[6px] transition-colors ${
+                    props.scope === sKey
+                      ? "bg-[#006239] text-[#EDEDED] font-medium border border-[#3ECF8E]"
+                      : "text-[#A0A0A0] hover:bg-[#232323] hover:text-[#EDEDED]"
+                  }`}
                 >
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                </svg>
-              </span>
-              <input
-                id="url-input"
-                type="url"
-                value={props.url}
-                onChange={(e) => props.setUrl(e.target.value)}
-                placeholder="https://my-site.dev"
-                aria-invalid={!!props.error}
-                aria-describedby={props.error ? "url-error" : undefined}
-                className={`w-full h-11 bg-[#1C1C1C] rounded-[6px] pl-10 pr-3 text-sm text-[#EDEDED] font-mono placeholder:text-[#707070] border transition-colors focus:outline-none focus:border-[#3ECF8E] focus:ring-2 focus:ring-[rgba(62,207,142,0.2)] ${
-                  props.error ? "border-[#EF4444]" : "border-[#363636]"
-                }`}
-              />
+                  {sLabel}
+                </button>
+              ))}
             </div>
+          </div>
+
+          {props.scope === "site" && (
+            <div className="flex items-center gap-2 text-xs text-[#A0A0A0]">
+              <span>Max pages:</span>
+              <div className="flex items-center border border-[#363636] rounded-[6px] overflow-hidden bg-[#121212]">
+                <button
+                  type="button"
+                  onClick={() => props.setMaxPages(Math.max(1, props.maxPages - 1))}
+                  className="px-2 py-0.5 hover:bg-[#232323] text-[#EDEDED]"
+                >
+                  -
+                </button>
+                <span className="px-2 font-mono text-[#EDEDED]">{props.maxPages}</span>
+                <button
+                  type="button"
+                  onClick={() => props.setMaxPages(Math.min(25, props.maxPages + 1))}
+                  className="px-2 py-0.5 hover:bg-[#232323] text-[#EDEDED]"
+                >
+                  +
+                </button>
+              </div>
+              <span className="text-[#707070] hidden sm:inline">
+                (Follows same-origin links from start page)
+              </span>
+            </div>
+          )}
+
+          {props.scope === "region" && (
+            <span className="text-xs text-[#3ECF8E] font-mono">
+              ⌖ Drag a box in Live Preview to specify testing bounds
+            </span>
+          )}
+
+          {props.scope === "element" && (
+            <span className="text-xs text-[#3ECF8E] font-mono">
+              ↖ Click an element in Live Preview to inspect its subtree
+            </span>
+          )}
+        </div>
+
+        {/* Inputs row */}
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-start">
+          {/* URL Input: Public vs Localhost */}
+          <div className="flex-[2.5] min-w-0">
+            {props.mode === "public" ? (
+              <div>
+                <label htmlFor="url-input" className="block text-xs text-[#A0A0A0] mb-1.5 font-medium">
+                  Page URL
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-3.5 text-[#707070] pointer-events-none" aria-hidden="true">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    </svg>
+                  </span>
+                  <input
+                    id="url-input"
+                    type="url"
+                    value={props.url}
+                    onChange={(e) => props.setUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") props.onLoadPreview();
+                    }}
+                    placeholder="https://my-site.dev"
+                    aria-invalid={!!props.error}
+                    aria-describedby={props.error ? "url-error" : undefined}
+                    className={`w-full h-11 bg-[#1C1C1C] rounded-[6px] pl-10 pr-3 text-sm text-[#EDEDED] font-mono placeholder:text-[#707070] border transition-colors focus:outline-none focus:border-[#3ECF8E] focus:ring-2 focus:ring-[rgba(62,207,142,0.2)] ${
+                      props.error ? "border-[#EF4444]" : "border-[#363636]"
+                    }`}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="localhost-port" className="block text-xs text-[#A0A0A0] font-medium">
+                    Localhost Target
+                  </label>
+                  <button
+                    type="button"
+                    onClick={props.onDetectLocal}
+                    disabled={props.detectingServers}
+                    className="text-xs text-[#3ECF8E] hover:underline flex items-center gap-1 font-mono"
+                  >
+                    {props.detectingServers ? <Spinner className="w-3 h-3 text-[#3ECF8E]" /> : "⚡"}
+                    Detect running apps
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center flex-1 h-11 bg-[#1C1C1C] rounded-[6px] border border-[#363636] px-3 font-mono text-sm">
+                    <span className="text-[#A0A0A0] select-none">http://localhost:</span>
+                    <input
+                      id="localhost-port"
+                      type="number"
+                      min="1"
+                      max="65535"
+                      value={props.port}
+                      onChange={(e) => props.setPort(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") props.onLoadPreview();
+                      }}
+                      placeholder="5173"
+                      className="w-16 bg-transparent text-[#EDEDED] focus:outline-none px-1"
+                    />
+                    <span className="text-[#707070]">/</span>
+                    <input
+                      type="text"
+                      value={props.path}
+                      onChange={(e) => props.setPath(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") props.onLoadPreview();
+                      }}
+                      placeholder="path (optional)"
+                      className="flex-1 bg-transparent text-[#EDEDED] focus:outline-none px-1 text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Detected apps chips */}
+                {props.detectedServers.length > 0 && (
+                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                    <span className="text-[11px] text-[#707070]">Detected:</span>
+                    {props.detectedServers.map((srv) => (
+                      <button
+                        key={srv.port}
+                        type="button"
+                        onClick={() => {
+                          props.setPort(String(srv.port));
+                          props.setPath("");
+                        }}
+                        className="text-[11px] font-mono px-2 py-0.5 rounded-[4px] bg-[#232323] border border-[#2E2E2E] text-[#3ECF8E] hover:border-[#3ECF8E]"
+                      >
+                        localhost:{srv.port} ({srv.title})
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {props.error && (
               <p id="url-error" className="text-xs text-[#EF4444] mt-1.5 flex items-center gap-1.5">
                 <span>✕</span> {props.error}
@@ -157,7 +362,7 @@ export function TargetPanel(props: TargetProps) {
           </div>
 
           {/* Bug description */}
-          <div className="flex-[3] min-w-0">
+          <div className="flex-[2.5] min-w-0">
             <label htmlFor="desc-input" className="block text-xs text-[#A0A0A0] mb-1.5 font-medium">
               What looks wrong?
             </label>
@@ -171,73 +376,98 @@ export function TargetPanel(props: TargetProps) {
             />
           </div>
 
-          {/* Buttons */}
-          <div className="flex items-center gap-2 lg:pt-[22px]">
+          {/* Buttons: Load Preview + Primary Test Run */}
+          <div className="flex items-center gap-2 lg:pt-[22px] flex-wrap">
             <Btn
-              id="run-btn"
-              variant="primary"
+              id="load-preview-btn"
+              variant="secondary"
               size="lg"
-              disabled={!props.canRun || props.running}
-              onClick={props.onRun}
+              disabled={props.running}
+              onClick={props.onLoadPreview}
               className="whitespace-nowrap"
             >
-              {props.running ? (
-                <>
-                  <Spinner className="w-4 h-4 text-[#EDEDED]" />
-                  Testing...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-4 h-4 fill-current"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <polygon points="5 3 19 12 5 21 5 3" />
-                  </svg>
-                  Run Playwright test
-                </>
-              )}
+              <svg className="w-4 h-4 text-[#A0A0A0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              Load preview
             </Btn>
 
-            {props.running && (
+            <div className="relative group">
               <Btn
-                id="cancel-btn"
-                variant="secondary"
+                id="run-btn"
+                variant="primary"
                 size="lg"
-                onClick={props.onCancel}
+                disabled={!props.canRun || props.running}
+                onClick={props.onRun}
+                className="whitespace-nowrap"
               >
+                {props.running ? (
+                  <>
+                    <Spinner className="w-4 h-4 text-[#EDEDED]" />
+                    Testing...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    {runBtnLabel}
+                  </>
+                )}
+              </Btn>
+              {props.disabledReason && !props.canRun && (
+                <div className="absolute right-0 top-full mt-1.5 hidden group-hover:block bg-[#1C1C1C] border border-[#2E2E2E] text-[11px] text-[#A0A0A0] px-2.5 py-1 rounded shadow-lg whitespace-nowrap z-30">
+                  {props.disabledReason}
+                </div>
+              )}
+            </div>
+
+            {props.running && (
+              <Btn id="cancel-btn" variant="secondary" size="lg" onClick={props.onCancel}>
                 Cancel
               </Btn>
             )}
           </div>
         </div>
 
-        {/* Second row of controls */}
-        <div className="mt-5 flex flex-wrap items-center gap-3 pt-4 border-t border-[#2E2E2E]">
-          <Btn id="sample-btn" variant="ghost" onClick={props.onSample}>
-            Use sample bug
-          </Btn>
-          <div className="h-4 w-px bg-[#2E2E2E] hidden sm:block" />
-          <div className="flex items-center gap-2">
-            <Chip
-              id="vp-desktop"
-              on={props.vp.desktop}
-              onClick={() => props.setVp({ ...props.vp, desktop: !props.vp.desktop })}
-            >
-              Desktop 1280px
-            </Chip>
-            <Chip
-              id="vp-mobile"
-              on={props.vp.mobile}
-              onClick={() => props.setVp({ ...props.vp, mobile: !props.vp.mobile })}
-            >
-              Mobile 375px
-            </Chip>
+        {/* Second row of controls: Context note, Sample bug, Viewports */}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#2E2E2E]">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Btn id="sample-btn" variant="ghost" onClick={props.onSample}>
+              Use sample bug
+            </Btn>
+            <div className="h-4 w-px bg-[#2E2E2E] hidden sm:block" />
+            <div className="flex items-center gap-2">
+              <Chip
+                id="vp-desktop"
+                on={props.vp.desktop}
+                onClick={() => props.setVp({ ...props.vp, desktop: !props.vp.desktop })}
+              >
+                Desktop 1280px
+              </Chip>
+              <Chip
+                id="vp-tablet"
+                on={props.vp.tablet}
+                onClick={() => props.setVp({ ...props.vp, tablet: !props.vp.tablet })}
+              >
+                Tablet 768px
+              </Chip>
+              <Chip
+                id="vp-mobile"
+                on={props.vp.mobile}
+                onClick={() => props.setVp({ ...props.vp, mobile: !props.vp.mobile })}
+              >
+                Mobile 375px
+              </Chip>
+            </div>
           </div>
-          <span className="text-xs text-[#707070] ml-auto">
-            Localhost and IP addresses are blocked.
-          </span>
+
+          <p className="text-xs text-[#707070]">
+            {props.mode === "public"
+              ? "Only public sites are allowed here. Switch to Localhost to test an app on this machine."
+              : "Testing runs on this machine. Nothing leaves your computer except the AI diagnosis request."}
+          </p>
         </div>
       </section>
     </div>
